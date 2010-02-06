@@ -47,13 +47,13 @@ class rcguard extends rcube_plugin
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
     $query = $rcmail->db->query(
-      "SELECT ip, UNIX_TIMESTAMP(first) AS first, UNIX_TIMESTAMP(last) AS last
+      "SELECT UNIX_TIMESTAMP(last) AS last
        FROM rcguard
        WHERE ip = ? AND hits >= ?",
       $client_ip, $rcmail->config->get('failed_attempts'));
     $result = $rcmail->db->fetch_assoc($query);
 
-    if (!$result || $this->purge_rcguard($result, $client_ip))
+    if (!$result || $this->delete_rcguard($result, $client_ip))
       return $loginform;
 
     return $this->show_recaptcha($loginform);
@@ -141,7 +141,7 @@ class rcguard extends rcube_plugin
       $now, $hits + 1, $client_ip);
   }
 
-  private function purge_rcguard($result, $client_ip)
+  private function delete_rcguard($result, $client_ip)
   {
     $this->load_config();
     $rcmail = rcmail::get_instance();
@@ -149,15 +149,23 @@ class rcguard extends rcube_plugin
     $last = $result['last'];
 
     if ($last + $rcmail->config->get('expire_time') * 60 < time()) {
-      $query = $rcmail->db->query(
-        "DELETE FROM rcguard
-         WHERE ip = ?",
-        $client_ip);
+      $this->flush_rcguard();
 
       return true;
     }
     else
       return false;
+  }
+
+  private function flush_rcguard()
+  {
+    $this->load_config();
+    $rcmail = rcmail::get_instance();
+
+    $query = $rcmail->db->query(
+      "DELETE FROM rcguard
+       WHERE UNIX_TIMESTAMP(last) + ? < UNIX_TIMESTAMP(NOW())",
+      $rcmail->config->get('expire_time') * 60);
   }
 
   private function show_recaptcha($loginform)
