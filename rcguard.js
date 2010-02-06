@@ -1,0 +1,3 @@
+var RecaptchaOptions = {
+  theme : 'white'
+};

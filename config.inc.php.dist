@@ -1,0 +1,22 @@
+<?php
+
+/*
+ * rcguard configuration file
+ */
+
+// Number of failed logins before reCAPTCHA is shown
+$rcmail_config['failed_attempts'] = 3;
+
+// Release IP after how many minutes (after last failed attempt)
+$rcmail_config['expire_time'] = 30;
+
+// Use HTTPS for reCAPTCHA
+$rcmail_config['recaptcha_https'] = false;
+
+// Keys can be obtained from http://recaptcha.net/whyrecaptcha.html
+
+// Public key for reCAPTCHA
+$rcmail_config['recaptcha_publickey'] = '';
+
+// Private key for reCAPTCHA
+$rcmail_config['recaptcha_privatekey'] = '';

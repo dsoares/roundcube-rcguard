@@ -1,0 +1,48 @@
+Rouncube rcguard plugin
+
+Introduction
+----------------------------------------
+This plugin logs failed login attempts and requires users to go
+through a reCAPTCHA verification process when the number of failed
+attempts go too high. This provides protection against automated
+attacks.
+
+Failed attempts are logged by IP and stored within MySQL. IPs are also
+released after a certain amount of time.
+
+Installation
+----------------------------------------
+Place this directory under plugins/, and enable rcguard within the main
+configuration file.
+
+Copy config.inc.php.dist to config.inc.php and modify as necessary.
+
+Use the files within SQL/ to create the database layout required for
+rcguard. The table should be created in the database used by Roundcube.
+
+Please note that this plugin requires reCAPTCHA keys to work properly.
+They can be obtained from http://recaptcha.net/whyrecaptcha.html.
+
+Issues
+----------------------------------------
+* Only MySQL is supported right now.
+* IPs are purged from the database only when the user visits the page.
+  This will be fixed later.
+* Users that fail reCAPTCHA aren't allowed to login. However, the method
+  is crude and ugly. I'll fix this using the login_after hook instead.
+* Might conflict with the remember_me plugin.
+
+License
+----------------------------------------
+This plugin is distributed under the BSD license. Please see rcguard.php
+for the complete license.
+
+This plugin also contains a PHP library for reCAPTCHA that is
+distributed under its own license. See the file for exact details.
+
+Contact
+----------------------------------------
+This is my first plugin, so please let me know what you think about it!
+Comments and suggestions are welcome.
+
+Email: dennylin93@cnmc32.hs.ntnu.edu.tw

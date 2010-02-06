@@ -1,0 +1,9 @@
+@charset "utf-8";
+
+#rcguard {
+	margin-bottom: 120px;
+}
+
+#recaptcha {
+	position: absolute;
+}
