@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS `rcguard` (
   `last` DATETIME NOT NULL,
   `hits` INT(10) NOT NULL,
   PRIMARY KEY (`ip`),
-  INDEX `time` (`first`, `last`),
+  INDEX (`last`),
   INDEX (`hits`)
 ) ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci;
