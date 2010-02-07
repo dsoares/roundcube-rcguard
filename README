@@ -26,7 +26,6 @@ They can be obtained from http://recaptcha.net/whyrecaptcha.html.
 Issues
 ----------------------------------------
 * Only MySQL is supported right now.
-* Might conflict with the remember_me plugin.
 
 License
 ----------------------------------------
