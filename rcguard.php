@@ -76,6 +76,11 @@ class rcguard extends rcube_plugin
     if (!$result)
       return $args;
 
+    if ($rcmail->config->get('remember_me')) {
+      if ($rcmail->authenticate_rememberme())
+        return $args;
+    }
+
     if (($challenge = $_POST['recaptcha_challenge_field'])
       && ($response = $_POST['recaptcha_response_field'])) {
       if ($this->verify_recaptcha($client_ip, $challenge, $response)) {
