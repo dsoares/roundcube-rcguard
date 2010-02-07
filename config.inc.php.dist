@@ -5,7 +5,7 @@
  */
 
 // Number of failed logins before reCAPTCHA is shown
-$rcmail_config['failed_attempts'] = 3;
+$rcmail_config['failed_attempts'] = 5;
 
 // Release IP after how many minutes (after last failed attempt)
 $rcmail_config['expire_time'] = 30;

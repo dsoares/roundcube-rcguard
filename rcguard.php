@@ -2,7 +2,7 @@
 
 /*
  * rcguard plugin
- * Version 0.1
+ * Version 0.1.0
  *
  * Copyright (c) 2010 Denny Lin. All rights reserved.
  *
@@ -62,6 +62,7 @@ class rcguard extends rcube_plugin
   function authenticate($args)
   {
     $this->load_config();
+    $this->add_texts('localization/');
     $rcmail = rcmail::get_instance();
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
@@ -77,25 +78,36 @@ class rcguard extends rcube_plugin
 
     if (($challenge = $_POST['recaptcha_challenge_field'])
       && ($response = $_POST['recaptcha_response_field'])) {
-
-      if ($this->verify_recaptcha($client_ip, $challenge, $response))
+      if ($this->verify_recaptcha($client_ip, $challenge, $response)) {
         $log_entry = sprintf("reCAPTCHA verification succeeded for %s. [%s]",
           $args['user'], $client_ip);
+        write_log('rcguard', $log_entry);
+
+        return $args;
+      }
       else {
-        $args['host'] = '';
         $log_entry = sprintf("reCAPTCHA Error: Verification failed for %s. [%s]",
           $args['user'], $client_ip);
+        write_log('rcguard', $log_entry);
+
+        $rcmail->output->show_message('rcguard.recaptchafailed', 'error');
+        $rcmail->output->set_env('task', 'login');
+        $rcmail->output->send('login');
+
+        exit;
       }
     }
     else {
-      $args['host'] = '';
       $log_entry = sprintf("reCAPTCHA Error: Empty input for %s. [%s]",
         $args['user'], $client_ip);
+      write_log('rcguard', $log_entry);
+
+      $rcmail->output->show_message('rcguard.recaptchaempty', 'error');
+      $rcmail->output->set_env('task', 'login');
+      $rcmail->output->send('login');
+
+      exit;
     }
-
-    write_log('rcguard', $log_entry);
-
-    return $args;
   }
 
   function login_failed($args)
