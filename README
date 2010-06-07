@@ -25,7 +25,7 @@ They can be obtained from http://recaptcha.net/whyrecaptcha.html.
 
 Issues
 ----------------------------------------
-* Only MySQL is supported right now.
+* Only MySQL and PostgreSQL are supported right now.
 
 License
 ----------------------------------------
