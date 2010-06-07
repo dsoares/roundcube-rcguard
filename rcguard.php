@@ -47,9 +47,7 @@ class rcguard extends rcube_plugin
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
     $query = $rcmail->db->query(
-      "SELECT UNIX_TIMESTAMP(last) AS last
-       FROM rcguard
-       WHERE ip = ? AND hits >= ?",
+      $this->get_query(1),
       $client_ip, $rcmail->config->get('failed_attempts'));
     $result = $rcmail->db->fetch_assoc($query);
 
@@ -183,8 +181,7 @@ class rcguard extends rcube_plugin
     $rcmail = rcmail::get_instance();
 
     $query = $rcmail->db->query(
-      "DELETE FROM rcguard
-       WHERE UNIX_TIMESTAMP(last) + ? < UNIX_TIMESTAMP(NOW())",
+      $this->get_query(2),
       $rcmail->config->get('expire_time') * 60);
   }
 
@@ -255,6 +252,41 @@ class rcguard extends rcube_plugin
     }
     else
       return "";
+  }
+
+  private function get_query($query_id)
+  {
+    if (0 === stripos(rcmail::get_instance()->config->get('db_dsnw'), 'pgsql://')) {
+      switch ($query_id) {
+        case 1:
+          return
+            'SELECT EXTRACT(EPOCH FROM last) AS last
+            FROM rcguard
+            WHERE ip = ? AND hits >= ?';
+        case 2:
+          return
+            'DELETE FROM rcguard
+            WHERE EXTRACT(EPOCH FROM last) + ? < EXTRACT(EPOCH FROM NOW())';
+        default:
+          return null;
+      }
+    }
+    else {
+      // Default to MySQL
+      switch ($query_id) {
+        case 1:
+          return
+            'SELECT UNIX_TIMESTAMP(last) AS last
+            FROM rcguard
+            WHERE ip = ? AND hits >= ?';
+        case 2:
+          return
+            'DELETE FROM rcguard
+            WHERE UNIX_TIMESTAMP(last) + ? < UNIX_TIMESTAMP(NOW())';
+        default:
+          return null;
+      }
+    }
   }
 }
 
