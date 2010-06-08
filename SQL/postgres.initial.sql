@@ -3,7 +3,7 @@
 DROP TABLE IF EXISTS rcguard CASCADE;
 CREATE TABLE rcguard (
 	ip
-		varchar(15)
+		varchar(40)
 		NOT NULL
 		PRIMARY KEY,
 	first
