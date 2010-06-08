@@ -47,7 +47,7 @@ class rcguard extends rcube_plugin
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
     $query = $rcmail->db->query(
-      "SELECT UNIX_TIMESTAMP(last) AS last
+      "SELECT " . $this->unixtimestamp('last') . " AS last
        FROM rcguard
        WHERE ip = ? AND hits >= ?",
       $client_ip, $rcmail->config->get('failed_attempts'));
@@ -184,7 +184,7 @@ class rcguard extends rcube_plugin
 
     $query = $rcmail->db->query(
       "DELETE FROM rcguard
-       WHERE UNIX_TIMESTAMP(last) + ? < UNIX_TIMESTAMP(NOW())",
+       WHERE " . $this->unixtimestamp('last') . " + ? < " . $this->unixtimestamp('NOW()'),
       $rcmail->config->get('expire_time') * 60);
   }
 
@@ -255,6 +255,18 @@ class rcguard extends rcube_plugin
     }
     else
       return "";
+  }
+
+  private function unixtimestamp($field)
+  {
+    $rcmail = rcmail::get_instance();
+
+    switch ($rcmail->db->db_provider) {
+      case 'pgsql':
+        return "EXTRACT (EPOCH FROM $field)";
+      default:
+        return "UNIX_TIMESTAMP($field)";
+    }
   }
 }
 
