@@ -7,4 +7,4 @@ CREATE TABLE rcguard (
 	hits integer NOT NULL
 );
 
-CREATE INDEX indx_rcguard_last ON rcguard(last);
+CREATE INDEX rcguard_last_idx ON rcguard(last);
