@@ -1,6 +1,5 @@
 -- PostgreSQL table for rcguard
 
-DROP TABLE IF EXISTS rcguard CASCADE;
 CREATE TABLE rcguard (
 	ip
 		varchar(40)

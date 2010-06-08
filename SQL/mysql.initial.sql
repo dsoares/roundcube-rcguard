@@ -1,6 +1,6 @@
 -- MySQL table for rcguard
 
-CREATE TABLE IF NOT EXISTS `rcguard` (
+CREATE TABLE `rcguard` (
   `ip` VARCHAR(40) NOT NULL,
   `first` DATETIME NOT NULL,
   `last` DATETIME NOT NULL,
