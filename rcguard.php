@@ -37,6 +37,7 @@ class rcguard extends rcube_plugin
   {
     $this->add_hook('template_object_loginform', array($this, 'loginform'));
     $this->add_hook('authenticate', array($this, 'authenticate'));
+    $this->add_hook('login_after', array($this, 'login_after'));
     $this->add_hook('login_failed', array($this, 'login_failed'));
   }
 
@@ -118,6 +119,15 @@ class rcguard extends rcube_plugin
     }
   }
 
+  function login_after($args)
+  {
+    $client_ip = $_SERVER['REMOTE_ADDR'];
+
+    $this->delete_rcguard('', $client_ip, true);
+
+    return $args;
+  }
+
   function login_failed($args)
   {
     $rcmail = rcmail::get_instance();
@@ -161,10 +171,21 @@ class rcguard extends rcube_plugin
       $now, $hits + 1, $client_ip);
   }
 
-  private function delete_rcguard($result, $client_ip)
+  private function delete_rcguard($result, $client_ip, $force = false)
   {
     $this->load_config();
     $rcmail = rcmail::get_instance();
+
+    if ($force) {
+      $query = $rcmail->db->query(
+        "DELETE FROM rcguard
+        WHERE ip = ?",
+        $client_ip);
+
+      $this->flush_rcguard();
+
+      return;
+    }
 
     $last = $result['last'];
 
