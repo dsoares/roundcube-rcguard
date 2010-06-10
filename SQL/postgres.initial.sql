@@ -8,3 +8,4 @@ CREATE TABLE rcguard (
 );
 
 CREATE INDEX rcguard_last_idx ON rcguard(last);
+CREATE INDEX rcguard_hits_idx ON rcguard(hits);
