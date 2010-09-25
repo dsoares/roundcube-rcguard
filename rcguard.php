@@ -31,6 +31,9 @@
  *
  */
 
+define('RCGUARD_RECAPTCHA_SUCCESS', 0);
+define('RCGUARD_RECAPTCHA_FAILURE', 1);
+
 class rcguard extends rcube_plugin
 {
   function init()
@@ -88,16 +91,12 @@ class rcguard extends rcube_plugin
     if (($challenge = $_POST['recaptcha_challenge_field'])
       && ($response = $_POST['recaptcha_response_field'])) {
       if ($this->verify_recaptcha($client_ip, $challenge, $response)) {
-        $log_entry = sprintf("reCAPTCHA verification succeeded for %s. [%s]",
-          $args['user'], $client_ip);
-        write_log('rcguard', $log_entry);
+        $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
 
         return $args;
       }
       else {
-        $log_entry = sprintf("reCAPTCHA Error: Verification failed for %s. [%s]",
-          $args['user'], $client_ip);
-        write_log('rcguard', $log_entry);
+        $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
 
         $rcmail->output->show_message('rcguard.recaptchafailed', 'error');
         $rcmail->output->set_env('task', 'login');
@@ -107,9 +106,7 @@ class rcguard extends rcube_plugin
       }
     }
     else {
-      $log_entry = sprintf("reCAPTCHA Error: Empty input for %s. [%s]",
-        $args['user'], $client_ip);
-      write_log('rcguard', $log_entry);
+      $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
 
       $rcmail->output->show_message('rcguard.recaptchaempty', 'error');
       $rcmail->output->set_env('task', 'login');
@@ -253,6 +250,35 @@ class rcguard extends rcube_plugin
       return true;
     else
       return false;
+  }
+
+  private function log_recaptcha($log_type, $username)
+  {
+    $this->load_config();
+    $rcmail = rcmail::get_instance();
+    $client_ip = $_SERVER['REMOTE_ADDR'];
+    $username = (empty($username)) ? 'empty username' : $username;
+
+    if (!$rcmail->config->get('recaptcha_log'))
+      return;
+
+    switch ($log_type) {
+      case RCGUARD_RECAPTCHA_SUCCESS:
+        $log_entry = $rcmail->config->get('recaptcha_log_success');
+        break;
+      case RCGUARD_RECAPTCHA_FAILURE:
+        $log_entry = $rcmail->config->get('recaptcha_log_failure');
+        break;
+      default:
+        $log_entry = $rcmail->config->get('recaptcha_log_unknown');
+    }
+
+    if (empty($log_entry))
+      return;
+
+    $log_entry = str_replace(array('%r', '%u'), array($client_ip, $username), $log_entry);
+
+    write_log('rcguard', $log_entry);
   }
 
   private function rememberme_authenticate($args)

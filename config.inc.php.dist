@@ -21,6 +21,17 @@ $rcmail_config['recaptcha_publickey'] = '';
 // Private key for reCAPTCHA
 $rcmail_config['recaptcha_privatekey'] = '';
 
+// Log events
+$rcmail_config['recaptcha_log'] = FALSE;
+
+// Event is not logged when set to NULL
+// Parameter expansion:
+// %r - Remote IP
+// %u - Username
+$rcmail_config['recaptcha_log_success'] = 'Verification succeeded for %u. [%r]';
+$rcmail_config['recaptcha_log_failure'] = 'Error: Verification failed for %u. [%r]';
+$rcmail_config['recaptcha_log_unknown'] = 'Error: Unknown log type.';
+
 // Set to true if remember_me plugin is in use
 $rcmail_config['remember_me'] = false;
 
