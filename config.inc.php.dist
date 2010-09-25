@@ -22,7 +22,7 @@ $rcmail_config['recaptcha_publickey'] = '';
 $rcmail_config['recaptcha_privatekey'] = '';
 
 // Log events
-$rcmail_config['recaptcha_log'] = FALSE;
+$rcmail_config['recaptcha_log'] = false;
 
 // Event is not logged when set to NULL
 // Parameter expansion:
