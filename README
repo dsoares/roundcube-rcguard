@@ -23,6 +23,14 @@ rcguard. The table should be created in the database used by Roundcube.
 Please note that this plugin requires reCAPTCHA keys to work properly.
 They can be obtained from http://www.google.com/recaptcha.
 
+Customizing reCAPTCHA
+----------------------------------------
+Different themes and translations are available. If none of them fit
+your needs, create a custom one.
+
+Simply edit rcguard.js. For documentation, see:
+http://code.google.com/apis/recaptcha/docs/customization.html
+
 Supported databases
 ----------------------------------------
 - MySQL
