@@ -1,3 +1,4 @@
 var RecaptchaOptions = {
-  theme : 'white'
+  theme : 'white',
+  lang: 'en'
 };
