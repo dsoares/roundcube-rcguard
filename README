@@ -21,7 +21,7 @@ Use the files within SQL/ to create the database layout required for
 rcguard. The table should be created in the database used by Roundcube.
 
 Please note that this plugin requires reCAPTCHA keys to work properly.
-They can be obtained from http://recaptcha.net/whyrecaptcha.html.
+They can be obtained from http://www.google.com/recaptcha.
 
 Supported databases
 ----------------------------------------
