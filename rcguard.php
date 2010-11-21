@@ -2,7 +2,7 @@
 
 /*
  * rcguard plugin
- * Version 0.3.0
+ * Version 0.3.1
  *
  * Copyright (c) 2010 Denny Lin. All rights reserved.
  *
