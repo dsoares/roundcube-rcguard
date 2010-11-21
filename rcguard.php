@@ -210,14 +210,14 @@ class rcguard extends rcube_plugin
   {
     $this->load_config();
     $rcmail = rcmail::get_instance();
-    $recaptcha_api = 'http://api.recaptcha.net/';
-    $recaptcha_api_secure = 'https://api-secure.recaptcha.net/';
+    $recaptcha_api = 'http://www.google.com/recaptcha/api';
+    $recaptcha_api_secure = 'https://www.google.com/recaptcha/api';
 
     $skin_path = $this->local_skin_path();
     $this->include_stylesheet($skin_path . '/rcguard.css');
     $this->include_script('rcguard.js');
 
-    $src = sprintf("%schallenge?k=%s",
+    $src = sprintf("%s/challenge?k=%s",
         $rcmail->config->get('recaptcha_https') ? $recaptcha_api_secure : $recaptcha_api,
         $rcmail->config->get('recaptcha_publickey'));
 
