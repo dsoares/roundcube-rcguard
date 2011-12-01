@@ -4,7 +4,7 @@
  * rcguard plugin
  * Version 0.4.0
  *
- * Copyright (c) 2010 Denny Lin. All rights reserved.
+ * Copyright (c) 2010-2011 Denny Lin. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
