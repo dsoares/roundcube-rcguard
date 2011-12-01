@@ -57,7 +57,8 @@ class rcguard extends rcube_plugin
       $client_ip, $rcmail->config->get('failed_attempts'));
     $result = $rcmail->db->fetch_assoc($query);
 
-    if (!$result || $this->delete_rcguard($result, $client_ip))
+    if ((!$result || $this->delete_rcguard($result, $client_ip)) &&
+      $rcmail->config->get('failed_attempts') != 0)
       return $loginform;
 
     return $this->show_recaptcha($loginform);
