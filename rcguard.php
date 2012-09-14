@@ -4,7 +4,7 @@
  * rcguard plugin
  * Version 0.4.1
  *
- * Copyright (c) 2010-2011 Denny Lin. All rights reserved.
+ * Copyright (c) 2010-2012 Denny Lin. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -80,14 +80,6 @@ class rcguard extends rcube_plugin
 
     if (!$result)
       return $args;
-
-    if ($rcmail->config->get('remember_me')) {
-      if (!empty($_COOKIE[$rcmail->config->get('rememberme_user')]) && !empty($_COOKIE[$rcmail->config->get('rememberme_pass')]) && !empty($_COOKIE[$rcmail->config->get('rememberme_host')])) {
-        $args = $this->rememberme_authenticate($args);
-
-        return $args;
-      }
-    }
 
     if (($challenge = $_POST['recaptcha_challenge_field'])
       && ($response = $_POST['recaptcha_response_field'])) {
@@ -280,29 +272,6 @@ class rcguard extends rcube_plugin
     $log_entry = str_replace(array('%r', '%u'), array($client_ip, $username), $log_entry);
 
     write_log('rcguard', $log_entry);
-  }
-
-  private function rememberme_authenticate($args)
-  {
-    $this->load_config();
-    $rcmail = rcmail::get_instance();
-
-    $args['user'] = $this->rememberme_decode($_COOKIE[$rcmail->config->get('rememberme_user')]);
-    $args['pass'] = $this->rememberme_decode($_COOKIE[$rcmail->config->get('rememberme_pass')]);
-    $args['host'] = $this->rememberme_decode($_COOKIE[$rcmail->config->get('rememberme_host')]);
-
-    return $args;
-  }
-
-  private function rememberme_decode($args)
-  {
-    if ($args != "") {
-      $rcmail = rcmail::get_instance();
-
-      return $rcmail->decrypt($args);
-    }
-    else
-      return "";
   }
 
   private function unixtimestamp($field)
