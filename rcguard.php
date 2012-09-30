@@ -78,7 +78,7 @@ class rcguard extends rcube_plugin
       $client_ip, $rcmail->config->get('failed_attempts'));
     $result = $rcmail->db->fetch_assoc($query);
 
-    if (!$result)
+    if (!$result && $rcmail->config->get('failed_attempts') != 0)
       return $args;
 
     if ($rcmail->config->get('pl_plugin')) {
