@@ -218,7 +218,8 @@ class rcguard extends rcube_plugin
     $this->include_script('rcguard.js');
 
     $src = sprintf("%s/challenge?k=%s",
-        $rcmail->config->get('recaptcha_https') ? $recaptcha_api_secure : $recaptcha_api,
+        $rcmail->config->get('recaptcha_https') || $_SERVER['HTTPS'] ?
+            $recaptcha_api_secure : $recaptcha_api,
         $rcmail->config->get('recaptcha_publickey'));
 
     $script = html::tag('script', array('type' => "text/javascript", 'src' => $src));
