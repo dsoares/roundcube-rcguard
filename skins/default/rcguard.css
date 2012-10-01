@@ -1,9 +1,10 @@
 @charset "utf-8";
 
-#rcguard {
-	margin-bottom: 120px;
+#login-form .box-inner {
+	background-size: cover;
 }
 
-#recaptcha {
-	position: absolute;
+#recaptcha_area {
+	margin: 0 auto;
+	padding-left: 24px;
 }

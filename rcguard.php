@@ -225,7 +225,7 @@ class rcguard extends rcube_plugin
 
     $tmp = $loginform['content'];
     $tmp = str_ireplace('</tbody>',
-      '<tr><td class="title"><div id="rcguard"><div id="recaptcha">' . $script . '</div></div>
+      '<tr><td class="title" colspan="2">' . $script . '
 </td>
 </tr>
 </tbody>', $tmp);
