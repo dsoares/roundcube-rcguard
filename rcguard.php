@@ -301,7 +301,7 @@ class rcguard extends rcube_plugin
     $plain_token = $rcmail->decrypt($_COOKIE[$this->cookie_name]);
     $token_parts = explode('|', $plain_token);
 
-    if (!empty($token_parts) && is_array($token_parts) && count($token_parts == 5) {
+    if (!empty($token_parts) && is_array($token_parts) && count($token_parts == 5)) {
       if (time() <= $token_parts[4]) {
         $args['user'] = $token_parts[1];
         $args['pass'] = $rcmail->decrypt($token_parts[2]);
