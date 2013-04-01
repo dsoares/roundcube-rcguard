@@ -51,7 +51,7 @@ class rcguard extends rcube_plugin
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
     $query = $rcmail->db->query(
-      "SELECT " . $this->unixtimestamp('last') . " AS last
+      "SELECT " . $this->unixtimestamp('last') . " AS last, " . $this->unixtimestamp('NOW()') . " as time
        FROM rcguard
        WHERE ip = ? AND hits >= ?",
       $client_ip, $rcmail->config->get('failed_attempts'));
@@ -131,8 +131,6 @@ class rcguard extends rcube_plugin
 
     $client_ip = $_SERVER['REMOTE_ADDR'];
 
-    $now = date('Y-m-d H:i:s');
-
     $query = $rcmail->db->query(
       "SELECT hits
        FROM rcguard
@@ -141,31 +139,31 @@ class rcguard extends rcube_plugin
     $result = $rcmail->db->fetch_assoc($query);
 
     if ($result)
-      $this->update_rcguard($now, $result['hits'], $client_ip);
+      $this->update_rcguard($result['hits'], $client_ip);
     else
-      $this->insert_rcguard($client_ip, $now);
+      $this->insert_rcguard($client_ip);
   }
 
-  private function insert_rcguard($client_ip, $now)
+  private function insert_rcguard($client_ip)
   {
     $rcmail = rcmail::get_instance();
 
     $query = $rcmail->db->query(
       "INSERT INTO rcguard
        (ip, first, last, hits)
-       VALUES (?, ?, ?, ?)",
-      $client_ip, $now, $now, 1);
+       VALUES (?, NOW(), NOW(), ?)",
+      $client_ip, 1);
   }
 
-  private function update_rcguard($now, $hits, $client_ip)
+  private function update_rcguard($hits, $client_ip)
   {
     $rcmail = rcmail::get_instance();
 
     $query = $rcmail->db->query(
       "UPDATE rcguard
-       SET last = ?, hits = ?
+       SET last = NOW(), hits = ?
        WHERE ip = ?",
-      $now, $hits + 1, $client_ip);
+      $hits + 1, $client_ip);
   }
 
   private function delete_rcguard($result, $client_ip, $force = false)
@@ -185,8 +183,9 @@ class rcguard extends rcube_plugin
     }
 
     $last = $result['last'];
+    $time = $result['time'];
 
-    if ($last + $rcmail->config->get('expire_time') * 60 < time()) {
+    if ($last + $rcmail->config->get('expire_time') * 60 < $time) {
       $this->flush_rcguard();
 
       return true;
