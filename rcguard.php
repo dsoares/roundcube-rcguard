@@ -288,6 +288,7 @@ class rcguard extends rcube_plugin
 
     switch ($rcmail->db->db_provider) {
       case 'pgsql':
+      case 'postgres':
         return "EXTRACT (EPOCH FROM $field)";
       default:
         return "UNIX_TIMESTAMP($field)";
