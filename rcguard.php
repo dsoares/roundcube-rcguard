@@ -88,9 +88,8 @@ class rcguard extends rcube_plugin
       }
     }
 
-    if (($challenge = $_POST['recaptcha_challenge_field'])
-      && ($response = $_POST['recaptcha_response_field'])) {
-      if ($this->verify_recaptcha($client_ip, $challenge, $response)) {
+    if ($response = $_POST['g-recaptcha-response']) {
+      if ($this->verify_recaptcha($client_ip, $response)) {
         $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
 
         return $args;
@@ -210,24 +209,24 @@ class rcguard extends rcube_plugin
   {
     $this->load_config();
     $rcmail = rcmail::get_instance();
-    $recaptcha_api = 'http://www.google.com/recaptcha/api';
-    $recaptcha_api_secure = 'https://www.google.com/recaptcha/api';
-
+    $recaptcha_api = 'http://www.google.com/recaptcha/api.js';
+    $recaptcha_api_secure = 'https://www.google.com/recaptcha/api.js';
+    
     $skin_path = $this->local_skin_path();
     $this->include_stylesheet($skin_path . '/rcguard.css');
     $this->include_script('rcguard.js');
 
-    $src = sprintf("%s/challenge?k=%s",
+    $src = sprintf("%s?hl=%s",
         $rcmail->config->get('recaptcha_https') || $_SERVER['HTTPS'] ?
-            $recaptcha_api_secure : $recaptcha_api,
-        $rcmail->config->get('recaptcha_publickey'));
+            $recaptcha_api_secure : $recaptcha_api, 
+        $rcmail->user->language);
 
     $script = html::tag('script', array('type' => "text/javascript", 'src' => $src));
+    $this->include_script($src);
 
     $tmp = $loginform['content'];
     $tmp = str_ireplace('</tbody>',
-      '<tr><td class="title" colspan="2">' . $script . '
-</td>
+            '<tr><td class="title" colspan="2"><div class="g-recaptcha" data-sitekey="'.$rcmail->config->get('recaptcha_publickey').'"></div></td>
 </tr>
 </tbody>', $tmp);
     $loginform['content'] = $tmp;
@@ -235,7 +234,7 @@ class rcguard extends rcube_plugin
     return $loginform;
   }
 
-  private function verify_recaptcha($client_ip, $challenge, $response)
+  private function verify_recaptcha($client_ip, $response)
   {
     $this->load_config();
     $rcmail = rcmail::get_instance();
@@ -244,10 +243,11 @@ class rcguard extends rcube_plugin
     require_once($this->home . '/lib/recaptchalib.php');
     $resp = null;
     $error = null;
+    
+    $reCaptcha = new ReCaptcha($privatekey);
+    $resp = $reCaptcha->verifyResponse($client_ip, $response);
 
-    $resp = recaptcha_check_answer($privatekey, $client_ip, $challenge, $response);
-
-    if ($resp->is_valid)
+    if ($resp != null && $resp->success)
       return true;
     else
       return false;
