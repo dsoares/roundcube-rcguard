@@ -1,5 +1,5 @@
 {
-    "name": "dsoares/rcguard",
+    "name": "dennylin93/rcguard",
     "description": "Roundcube plugin that enforces reCAPTCHA for users that have too many failed logins",
     "keywords": ["mail","security","captcha"],
     "homepage": "https://github.com/dennylin93/rcguard",
