@@ -212,7 +212,7 @@ class rcguard extends rcube_plugin
     $recaptcha_api = 'http://www.google.com/recaptcha/api';
     $recaptcha_api_secure = 'https://www.google.com/recaptcha/api';
 
-    $skin_path = $this->local_skin_path();
+    $skin_path = 'skins/default'; //$this->local_skin_path();
     $this->include_stylesheet($skin_path . '/rcguard.css');
     $this->include_script('rcguard.js');
 
