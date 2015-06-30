@@ -210,14 +210,15 @@ class rcguard extends rcube_plugin
     $rcmail = rcmail::get_instance();
     $recaptcha_api = 'http://www.google.com/recaptcha/api.js';
     $recaptcha_api_secure = 'https://www.google.com/recaptcha/api.js';
-    
+
     $skin_path = $this->local_skin_path();
+    if (!file_exists(INSTALL_PATH . '/plugins/rcguard/'.$skin_path)) { $skin_path = 'skins/default'; }
     $this->include_stylesheet($skin_path . '/rcguard.css');
     $this->include_script('rcguard.js');
 
     $src = sprintf("%s?hl=%s",
         $rcmail->config->get('recaptcha_https') || $_SERVER['HTTPS'] ?
-            $recaptcha_api_secure : $recaptcha_api, 
+            $recaptcha_api_secure : $recaptcha_api,
         $rcmail->user->language);
 
     $script = html::tag('script', array('type' => "text/javascript", 'src' => $src));
@@ -242,7 +243,7 @@ class rcguard extends rcube_plugin
     require_once($this->home . '/lib/recaptchalib.php');
     $resp = null;
     $error = null;
-    
+
     $reCaptcha = new ReCaptcha($privatekey);
     $resp = $reCaptcha->verifyResponse($client_ip, $response);
 
@@ -315,7 +316,7 @@ class rcguard extends rcube_plugin
     return $args;
   }
 
-  private function _get_client_ip() 
+  private function _get_client_ip()
   {
       return rcube_utils::remote_addr();
   }
