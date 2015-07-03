@@ -10,10 +10,14 @@ $rcmail_config['failed_attempts'] = 5;
 // Release IP after how many minutes (after last failed attempt)
 $rcmail_config['expire_time'] = 30;
 
+// reCAPTCHA API
+$rcmail_config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
+$rcmail_config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
+
 // Use HTTPS for reCAPTCHA
 $rcmail_config['recaptcha_https'] = false;
 
-// Keys can be obtained from http://recaptcha.net/whyrecaptcha.html
+// Keys can be obtained from http://www.google.com/recaptcha/
 
 // Public key for reCAPTCHA
 $rcmail_config['recaptcha_publickey'] = '';
