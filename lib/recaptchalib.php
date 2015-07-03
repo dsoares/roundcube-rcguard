@@ -31,109 +31,129 @@
  */
 
 /**
- * A ReCaptchaResponse is returned from checkAnswer().
+ * reCAPTCHA client
  */
-class ReCaptchaResponse
-{
-    public $success;
-    public $errorCodes;
-}
-
 class ReCaptcha
 {
-    private static $_signupUrl = "https://www.google.com/recaptcha/admin";
-    private static $_siteVerifyUrl =
-        "https://www.google.com/recaptcha/api/siteverify?";
+    private static $version = "php_1.1.1";
+    private static $signupUrl = "https://www.google.com/recaptcha/admin";
+    private static $siteVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
     private $_secret;
-    private static $_version = "php_1.0";
 
     /**
      * Constructor.
      *
      * @param string $secret shared secret between site and ReCAPTCHA server.
      */
-    function ReCaptcha($secret)
+    function __construct($secret)
     {
-        if ($secret == null || $secret == "") {
-            die("To use reCAPTCHA you must get an API key from <a href='"
-                . self::$_signupUrl . "'>" . self::$_signupUrl . "</a>");
-        }
-        $this->_secret=$secret;
-    }
-
-    /**
-     * Encodes the given data into a query string format.
-     *
-     * @param array $data array of string elements to be encoded.
-     *
-     * @return string - encoded request.
-     */
-    private function _encodeQS($data)
-    {
-        $req = "";
-        foreach ($data as $key => $value) {
-            $req .= $key . '=' . urlencode(stripslashes($value)) . '&';
+        if (empty($secret)) {
+            die('To use reCAPTCHA you must get an API key from <a href="' .
+                self::$signupUrl . '">' . self::$signupUrl . '</a>');
         }
 
-        // Cut the last '&'
-        $req=substr($req, 0, strlen($req)-1);
-        return $req;
+        $this->_secret = $secret;
     }
 
+
     /**
-     * Submits an HTTP GET to a reCAPTCHA server.
+     * Submit the POST request with the specified parameters.
      *
-     * @param string $path url path to recaptcha server.
-     * @param array  $data array of parameters to be sent.
-     *
-     * @return array response
+     * @param array $params Request parameters
+     * @return string Body of the reCAPTCHA response
      */
-    private function _submitHTTPGet($path, $data)
+    private function _submit($params)
     {
-        $req = $this->_encodeQS($data);
-        $response = file_get_contents($path . $req);
-        return $response;
+        // PHP 5.6.0 changed the way you specify the peer name for SSL context options.
+        // Using "CN_name" will still work, but it will raise deprecated errors.
+        $peer_key = version_compare(PHP_VERSION, '5.6.0', '<') ? 'CN_name' : 'peer_name';
+        $options  = array(
+            'http' => array(
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($params, '', '&'),
+                // Force the peer to validate (not needed in 5.6.0+, but still works)
+                'verify_peer' => true,
+                $peer_key => 'www.google.com',
+            )
+        );
+
+        $context = stream_context_create($options);
+        return file_get_contents(self::$siteVerifyUrl, false, $context);
     }
+
 
     /**
      * Calls the reCAPTCHA siteverify API to verify whether the user passes
-     * CAPTCHA test.
+     * CAPTCHA test. (reCAPTCHA version php_1.1.1)
      *
-     * @param string $remoteIp   IP address of end user.
-     * @param string $response   response string from recaptcha verification.
+     * @param string $response The value of 'g-recaptcha-response' in the submitted form.
+     * @param string $remoteIp The end user's IP address.
+     * @return ReCaptchaResponse Response from the service.
+     */
+    public function verify($response, $remoteIp = null)
+    {
+        if (empty($response)) { // Discard empty solution submissions
+            return new ReCaptchaResponse(false, array('missing-input'));
+        }
+        
+        $params = array('version'  => self::$version,
+                        'secret'   => $this->_secret,
+                        'remoteip' => $remoteIp,
+                        'response' => $response
+                        );
+
+        $rawResponse = $this->_submit($params);
+
+        return ReCaptchaResponse::fromJson($rawResponse);
+    }
+}
+
+
+/**
+ * The response returned from the service.
+ */
+class ReCaptchaResponse
+{
+    public $success;
+    public $errorCodes;
+
+    /**
+     * Constructor.
      *
+     * @param boolean $success
+     * @param array $errorCodes
+     */
+    function __construct($success, $errorCodes=array())
+    {
+        $this->success = $success;
+        $this->errorCodes = $errorCodes;
+    }
+
+    /**
+     * Build the response from the expected JSON returned by the service.
+     *
+     * @param string $json
      * @return ReCaptchaResponse
      */
-    public function verifyResponse($remoteIp, $response)
+    public static function fromJson($json)
     {
-        // Discard empty solution submissions
-        if ($response == null || strlen($response) == 0) {
-            $recaptchaResponse = new ReCaptchaResponse();
-            $recaptchaResponse->success = false;
-            $recaptchaResponse->errorCodes = 'missing-input';
-            return $recaptchaResponse;
+        $responseData = json_decode($json, true);
+
+        if (!$responseData) {
+            $reCaptchaResponse = new ReCaptchaResponse(false, array('invalid-json'));
+        }
+        else if (isset($responseData['success']) && $responseData['success'] == true) {
+            $reCaptchaResponse = new ReCaptchaResponse(true);
+        }
+        else if (isset($responseData['error-codes']) && is_array($responseData['error-codes'])) {
+            $reCaptchaResponse = new ReCaptchaResponse(false, $responseData['error-codes']);
+        }
+        else {
+            $reCaptchaResponse = new ReCaptchaResponse(false);
         }
 
-        $getResponse = $this->_submitHttpGet(
-            self::$_siteVerifyUrl,
-            array (
-                'secret' => $this->_secret,
-                'remoteip' => $remoteIp,
-                'v' => self::$_version,
-                'response' => $response
-            )
-        );
-        $answers = json_decode($getResponse, true);
-        $recaptchaResponse = new ReCaptchaResponse();
-
-        if (trim($answers ['success']) == true) {
-            $recaptchaResponse->success = true;
-        } else {
-            $recaptchaResponse->success = false;
-            $recaptchaResponse->errorCodes = $answers [error-codes];
-        }
-
-        return $recaptchaResponse;
+        return $reCaptchaResponse;
     }
 }
 

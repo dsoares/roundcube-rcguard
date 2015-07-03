@@ -210,7 +210,7 @@ class rcguard extends rcube_plugin
         require_once($this->home . '/lib/recaptchalib.php');
 
         $reCaptcha = new ReCaptcha($privatekey);
-        $resp = $reCaptcha->verifyResponse($client_ip, $response);
+        $resp = $reCaptcha->verify($response, $client_ip);
 
         return ($resp != null && $resp->success);
     }
