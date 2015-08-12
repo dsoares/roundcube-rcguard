@@ -251,6 +251,7 @@ class rcguard extends rcube_plugin
         case 'pgsql':
         case 'postgres':
             $ts = "EXTRACT (EPOCH FROM $field)";
+            break;
         default:
             $ts = "UNIX_TIMESTAMP($field)";
         }
