@@ -238,7 +238,7 @@ class rcguard extends rcube_plugin
 
         if (!empty($log_entry)) {
             $log_entry = str_replace(array('%r', '%u'), array($client_ip, $username), $log_entry);
-            write_log('rcguard', $log_entry);
+            rcube::write_log('rcguard', $log_entry);
         }
     }
 
