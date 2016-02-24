@@ -48,7 +48,7 @@ class rcguard extends rcube_plugin
     public function loginform($loginform)
     {
         $rcmail = rcmail::get_instance();
-        $client_ip = $this->_get_client_ip();
+        $client_ip = $this->get_client_ip();
 
         $query = $rcmail->db->query("SELECT " . $this->unixtimestamp('last') . " AS last, " . $this->unixtimestamp('NOW()') . " as time " .
                                     " FROM ".$this->table_name()." WHERE ip = ? AND hits >= ?",
@@ -67,7 +67,7 @@ class rcguard extends rcube_plugin
     {
         $this->add_texts('localization/');
         $rcmail = rcmail::get_instance();
-        $client_ip = $this->_get_client_ip();
+        $client_ip = $this->get_client_ip();
 
         $query  = $rcmail->db->query("SELECT ip FROM ".$this->table_name()." WHERE ip = ? AND hits >= ?",
                                     $client_ip, $rcmail->config->get('failed_attempts'));
@@ -108,7 +108,7 @@ class rcguard extends rcube_plugin
 
     public function login_after($args)
     {
-        $client_ip = $this->_get_client_ip();
+        $client_ip = $this->get_client_ip();
         $this->delete_rcguard('', $client_ip, true);
 
         return $args;
@@ -117,7 +117,7 @@ class rcguard extends rcube_plugin
     public function login_failed($args)
     {
         $rcmail = rcmail::get_instance();
-        $client_ip = $this->_get_client_ip();
+        $client_ip = $this->get_client_ip();
 
         $query  = $rcmail->db->query("SELECT hits FROM ".$this->table_name()." WHERE ip = ?", $client_ip);
         $result = $rcmail->db->fetch_assoc($query);
@@ -217,7 +217,7 @@ class rcguard extends rcube_plugin
     private function log_recaptcha($log_type, $username)
     {
         $rcmail = rcmail::get_instance();
-        $client_ip = $this->_get_client_ip();
+        $client_ip = $this->get_client_ip();
         $username = (empty($username)) ? 'empty username' : $username;
 
         if (!$rcmail->config->get('recaptcha_log')) {
@@ -284,7 +284,7 @@ class rcguard extends rcube_plugin
         return rcmail::get_instance()->db->table_name('rcguard', true);
     }
 
-    private function _get_client_ip()
+    private function get_client_ip()
     {
         return rcube_utils::remote_addr();
     }
