@@ -102,7 +102,10 @@ class rcguard extends rcube_plugin
     public function login_after($args)
     {
         $client_ip = $this->get_client_ip();
-        $this->delete_rcguard('', $client_ip, true);
+
+        if (rcmail::get_instance()->config->get('rcguard_reset_after_success')) {
+            $this->delete_rcguard('', $client_ip, true);
+        }
 
         return $args;
     }
