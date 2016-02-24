@@ -77,13 +77,6 @@ class rcguard extends rcube_plugin
             return $args;
         }
 
-        if ($rcmail->config->get('pl_plugin')) {
-            if (!empty($_COOKIE[$rcmail->config->get('pl_cookie_name')])) {
-                $args = $this->pl_authenticate($args);
-                return $args;
-            }
-        }
-
         if ($response = $_POST['g-recaptcha-response']) {
             if ($this->verify_recaptcha($client_ip, $response)) {
                 $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
@@ -256,27 +249,6 @@ class rcguard extends rcube_plugin
         }
 
         return $ts;
-    }
-
-    private function pl_authenticate($args)
-    {
-        $rcmail = rcmail::get_instance();
-
-        // Code from persistent login plugin
-        $plain_token = $rcmail->decrypt($_COOKIE[$this->cookie_name]);
-        $token_parts = explode('|', $plain_token);
-
-        if (!empty($token_parts) && is_array($token_parts) && count($token_parts == 5)) {
-            if (time() <= $token_parts[4]) {
-                $args['user'] = $token_parts[1];
-                $args['pass'] = $rcmail->decrypt($token_parts[2]);
-                $args['host'] = $token_parts[3];
-                $args['cookiecheck'] = false;
-                $args['valid'] = true;
-            }
-        }
-
-        return $args;
     }
 
     private function table_name()
