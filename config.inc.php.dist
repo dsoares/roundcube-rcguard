@@ -11,7 +11,7 @@ $rcmail_config['failed_attempts'] = 5;
 $rcmail_config['expire_time'] = 30;
 
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
-$rcmail_config['rcguard_reset_after_success'] = false;
+$rcmail_config['rcguard_reset_after_success'] = true;
 
 // reCAPTCHA API
 $rcmail_config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
