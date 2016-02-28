@@ -50,7 +50,7 @@ class rcguard extends rcube_plugin
         $rcmail = rcmail::get_instance();
         $client_ip = $this->get_client_ip();
 
-        $query = $rcmail->db->query("SELECT " . $this->unixtimestamp('last') . " AS last, " . $this->unixtimestamp('NOW()') . " as time " .
+        $query = $rcmail->db->query("SELECT " . $this->unixtimestamp('last') . " AS last, " . $this->unixnow() . " as time " .
                                     " FROM ".$this->table_name()." WHERE ip = ? AND hits >= ?",
                                     $client_ip, $rcmail->config->get('failed_attempts'));
         $result = $rcmail->db->fetch_assoc($query);
@@ -128,14 +128,14 @@ class rcguard extends rcube_plugin
     private function insert_rcguard($client_ip)
     {
         $rcmail = rcmail::get_instance();
-        $query  = $rcmail->db->query("INSERT INTO ".$this->table_name()." (ip, first, last, hits) VALUES (?, NOW(), NOW(), ?)",
+        $query  = $rcmail->db->query("INSERT INTO ".$this->table_name()." (ip, first, last, hits) VALUES (?, ".$this->unixnow().", ".$this->unixnow().", ?)",
                                     $client_ip, 1);
     }
 
     private function update_rcguard($hits, $client_ip)
     {
         $rcmail = rcmail::get_instance();
-        $query  = $rcmail->db->query("UPDATE ".$this->table_name()." SET last = NOW(), hits = ? WHERE ip = ?",
+        $query  = $rcmail->db->query("UPDATE ".$this->table_name()." SET last = ".$this->unixnow().", hits = ? WHERE ip = ?",
                                     $hits + 1, $client_ip);
     }
 
@@ -165,7 +165,7 @@ class rcguard extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $query = $rcmail->db->query("DELETE FROM ".$this->table_name()." " .
-                                    " WHERE " . $this->unixtimestamp('last') . " + ? < " . $this->unixtimestamp('NOW()'),
+                                    " WHERE " . $this->unixtimestamp('last') . " + ? < " . $this->unixnow(),
                                     $rcmail->config->get('expire_time') * 60);
     }
 
@@ -247,11 +247,28 @@ class rcguard extends rcube_plugin
         case 'postgres':
             $ts = "EXTRACT (EPOCH FROM $field)";
             break;
+        case 'sqlite':
+            $ts = "strftime('%s', $field)";
+            break;
         default:
             $ts = "UNIX_TIMESTAMP($field)";
         }
 
         return $ts;
+    }
+    
+    private function unixnow()
+    {
+        $rcmail = rcmail::get_instance();
+        $now = '';
+        switch ($rcmail->db->db_provider) {
+        case 'sqlite':
+            $now = "strftime('%s', 'now')";
+            break;
+        default:
+            $now = "UNIX_TIMESTAMP(NOW())";
+        }
+        return $now;
     }
 
     private function table_name()
