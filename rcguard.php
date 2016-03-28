@@ -77,24 +77,21 @@ class rcguard extends rcube_plugin
             return $args;
         }
 
+        $msg = 'rcguard.recaptchaempty';
+
         if ($response = $_POST['g-recaptcha-response']) {
             if ($this->verify_recaptcha($client_ip, $response)) {
                 $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
                 return $args;
-            } else {
-                $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
-
-                $rcmail->output->show_message('rcguard.recaptchafailed', 'error');
-                $rcmail->output->set_env('task', 'login');
-                $rcmail->output->send('login');
             }
-        } else {
-            $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
 
-            $rcmail->output->show_message('rcguard.recaptchaempty', 'error');
-            $rcmail->output->set_env('task', 'login');
-            $rcmail->output->send('login');
+            $msg = 'rcguard.recaptchafailed';
         }
+
+        $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
+        $rcmail->output->show_message($msg, 'error');
+        $rcmail->output->set_env('task', 'login');
+        $rcmail->output->send('login');
 
         return null;
     }
@@ -248,7 +245,7 @@ class rcguard extends rcube_plugin
             $ts = "EXTRACT (EPOCH FROM $field)";
             break;
         case 'sqlite':
-            $field = preg_replace('/now\(\)/','now',$field);
+            $field = preg_replace('/now\(\)/', 'now', $field);
             $ts = "strftime('%s', $field)";
             break;
         default:
