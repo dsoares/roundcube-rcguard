@@ -245,7 +245,6 @@ class rcguard extends rcube_plugin
             $ts = "EXTRACT (EPOCH FROM $field)";
             break;
         case 'sqlite':
-            $field = preg_replace('/NOW\(\)/', 'now', $field);
             $ts = "strftime('%s', $field)";
             break;
         default:
