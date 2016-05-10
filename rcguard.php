@@ -186,7 +186,7 @@ class rcguard extends rcube_plugin
 
         $tmp = $loginform['content'];
         $tmp = str_ireplace('</tbody>',
-                            '<tr><td class="title" colspan="2"><div class="g-recaptcha" data-sitekey="'.$rcmail->config->get('recaptcha_publickey').'"></div></td>
+                            '<tr><td class="title"/><td class="input"><div class="g-recaptcha" data-sitekey="'.$rcmail->config->get('recaptcha_publickey').'"></div></td>
 </tr>
 </tbody>', $tmp);
         $loginform['content'] = $tmp;
@@ -245,7 +245,6 @@ class rcguard extends rcube_plugin
             $ts = "EXTRACT (EPOCH FROM $field)";
             break;
         case 'sqlite':
-            $field = preg_replace('/now\(\)/', 'now', $field);
             $ts = "strftime('%s', $field)";
             break;
         default:
