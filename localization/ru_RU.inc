@@ -7,7 +7,7 @@
 $labels = array();
 
 $messages = array();
-$messages['recaptchafailed'] = 'Вы не прошли защиту от роботов';
-$messages['recaptchaempty'] = 'Вам необходимо пройти защиту от роботов';
+$messages['recaptchafailed'] = 'Ошибка проверки CAPCHA';
+$messages['recaptchaempty'] = 'Необходимо пройти проверку CAPCHA';
 
 ?>
