@@ -38,3 +38,6 @@ $rcmail_config['recaptcha_log'] = false;
 $rcmail_config['recaptcha_log_success'] = 'Verification succeeded for %u. [%r]';
 $rcmail_config['recaptcha_log_failure'] = 'Error: Verification failed for %u. [%r]';
 $rcmail_config['recaptcha_log_unknown'] = 'Error: Unknown log type.';
+
+// Block IPv6 clients based on prefix length
+$rcmail_config['rcguard_ipv6_prefix'] = 64;
