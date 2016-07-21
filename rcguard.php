@@ -276,6 +276,29 @@ class rcguard extends rcube_plugin
 
     private function get_client_ip()
     {
-        return rcube_utils::remote_addr();
+        $prefix = rcmail::get_instance()->config->get('rcguard_ipv6_prefix', 128);
+        $client_ip = rcube_utils::remote_addr();
+
+        // process only v6 addresses
+        if (!filter_var($client_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
+
+            // process only if prefix is sane
+            if (is_int($prefix) && $prefix > 16 && $prefix < 128 ) {
+
+                // construct subnet mask
+                $mask_string = str_repeat('1', $prefix) . str_repeat('0', 128-$prefix);
+                $mask_split = str_split($mask_string, 16);
+                foreach($mask_split as &$item) {
+                    $item = base_convert($item, 2, 16);
+                }
+                $mask_hex = implode(":", $mask_split);
+
+                // return network part
+                return inet_ntop( inet_pton($client_ip) & inet_pton($mask_hex) );
+            }
+         }
+
+         // fall back: return unaltered client IP
+         return $client_ip;
     }
 }
