@@ -10,6 +10,12 @@ too high. This provides protection against automated attacks.
 Failed attempts are logged by IP and stored within MySQL. IPs are also
 released after a certain amount of time.
 
+The original author of this plugin is Denny Lin (https://github.com/dennylin93). 
+I forked it some years ago to add reCAPTCHA v2.0, add the larry skin 
+and because the project issues were taking too long to be answered.
+Also, the original project is not updated since 2015 and many things 
+have changed in the meantime in Roundcube's code.
+
 Installation
 ----------------------------------------
 Place this directory under plugins/, and enable rcguard within the main
@@ -48,9 +54,9 @@ distributed under its own license. See the file for exact details.
 Contact
 ----------------------------------------
 
-The original author of this plugin is Denny Lin (dennylin93@hs.ntnu.edu.tw). 
-I forked it some years ago to quickly add reCAPTCHA v2.0 and the larry skin 
-and because the project issues were taking too long to be answered.
+The original author of this plugin is Denny Lin (https://github.com/dennylin93). 
+I forked the project some years ago and i'm maintaining it because i need 
+it working with the latest version of Roundcube.
 
 Comments and suggestions are welcome (preferentially via issues).
 
