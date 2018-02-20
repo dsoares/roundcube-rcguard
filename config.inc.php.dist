@@ -28,6 +28,9 @@ $rcmail_config['recaptcha_publickey'] = '';
 // Private key for reCAPTCHA
 $rcmail_config['recaptcha_privatekey'] = '';
 
+// Send client IP to Google for reCAPTCHA verification
+$rcmail_config['recaptcha_send_client_ip'] = true;
+
 // Log events
 $rcmail_config['recaptcha_log'] = false;
 

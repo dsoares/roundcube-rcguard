@@ -80,7 +80,7 @@ class rcguard extends rcube_plugin
         $msg = 'rcguard.recaptchaempty';
 
         if ($response = $_POST['g-recaptcha-response']) {
-            if ($this->verify_recaptcha($client_ip, $response)) {
+            if ($this->verify_recaptcha($response, $client_ip)) {
                 $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
                 return $args;
             }
@@ -194,13 +194,16 @@ class rcguard extends rcube_plugin
         return $loginform;
     }
 
-    private function verify_recaptcha($client_ip, $response)
+    private function verify_recaptcha($response, $client_ip=null)
     {
         $rcmail = rcmail::get_instance();
 
         $privatekey = $rcmail->config->get('recaptcha_privatekey');
-        require_once($this->home . '/lib/recaptchalib.php');
+        if (! $rcmail->config->get('recaptcha_send_client_ip')) {
+            $client_ip = null;
+        }
 
+        require_once($this->home . '/lib/recaptchalib.php');
         $reCaptcha = new ReCaptcha($privatekey);
         $resp = $reCaptcha->verify($response, $client_ip);
 
