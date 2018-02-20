@@ -26,7 +26,7 @@ Copy config.inc.php.dist to config.inc.php and modify as necessary.
 Use the files within SQL/ to create the database layout required for
 rcguard. The table should be created in the database used by Roundcube.
 
-Please note that this plugin requires reCAPTCHA keys to work properly.
+Please note that this plugin requires reCAPTCHA API keys to work properly.
 They can be obtained from http://www.google.com/recaptcha.
 
 Customizing reCAPTCHA
@@ -34,8 +34,8 @@ Customizing reCAPTCHA
 Different themes and translations are available. If none of them fit
 your needs, create a custom one.
 
-Simply edit rcguard.js. For documentation, see:
-http://code.google.com/apis/recaptcha/docs/customization.html
+Documentation about the reCAPTCHA:
+https://developers.google.com/recaptcha/intro
 
 Supported databases
 ----------------------------------------
