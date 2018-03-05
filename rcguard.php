@@ -39,10 +39,15 @@ class rcguard extends rcube_plugin
     public function init()
     {
         $this->load_config();
-        $this->add_hook('template_object_loginform', array($this, 'loginform'));
-        $this->add_hook('authenticate', array($this, 'authenticate'));
-        $this->add_hook('login_after', array($this, 'login_after'));
-        $this->add_hook('login_failed', array($this, 'login_failed'));
+        $ignore_ips = rcmail::get_instance()->config->get('rcguard_ignore_ips', array());
+        $client_ip  = $this->get_client_ip();
+
+        if (!in_array($client_ip, $ignore_ips)) {
+            $this->add_hook('template_object_loginform', array($this, 'loginform'));
+            $this->add_hook('authenticate', array($this, 'authenticate'));
+            $this->add_hook('login_after', array($this, 'login_after'));
+            $this->add_hook('login_failed', array($this, 'login_failed'));
+        }
     }
 
     public function loginform($loginform)
