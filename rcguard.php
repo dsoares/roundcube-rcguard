@@ -182,7 +182,7 @@ class rcguard extends rcube_plugin
         $this->include_stylesheet($skin_path . '/rcguard.css');
         $this->include_script('rcguard.js');
 
-        $recaptcha_api = ($rcmail->config->get('recaptcha_https') || $_SERVER['HTTPS']) ?
+        $recaptcha_api = ($rcmail->config->get('recaptcha_https') || rcube_utils::https_check()) ?
             $rcmail->config->get('recaptcha_api_secure') : $rcmail->config->get('recaptcha_api');
 
         $src = sprintf("%s?hl=%s", $recaptcha_api, $rcmail->user->language);
