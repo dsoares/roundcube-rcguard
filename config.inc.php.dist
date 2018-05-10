@@ -18,7 +18,7 @@ $rcmail_config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js
 $rcmail_config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
 
 // Use HTTPS for reCAPTCHA
-$rcmail_config['recaptcha_https'] = false;
+$rcmail_config['recaptcha_https'] = true;
 
 // Keys can be obtained from http://www.google.com/recaptcha/
 
@@ -29,7 +29,7 @@ $rcmail_config['recaptcha_publickey'] = '';
 $rcmail_config['recaptcha_privatekey'] = '';
 
 // Send client IP to Google for reCAPTCHA verification
-$rcmail_config['recaptcha_send_client_ip'] = true;
+$rcmail_config['recaptcha_send_client_ip'] = false;
 
 // Log events
 $rcmail_config['recaptcha_log'] = false;
