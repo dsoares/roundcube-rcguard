@@ -44,10 +44,11 @@ class rcguard extends rcube_plugin
 
     public function init()
     {
+        $this->load_config('config.inc.php.dist');
         $this->load_config();
         $rcmail = rcmail::get_instance();
 
-        $ignore_ips = $rcmail->config->get('rcguard_ignore_ips', array());
+        $ignore_ips = $rcmail->config->get('rcguard_ignore_ips');
         $client_ip  = $this->get_client_ip();
 
         if (!in_array($client_ip, $ignore_ips)) {
@@ -64,7 +65,7 @@ class rcguard extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $client_ip = $this->get_client_ip();
-        $failed_attempts = $rcmail->config->get('failed_attempts', 5);
+        $failed_attempts = $rcmail->config->get('failed_attempts');
 
         if ($failed_attempts > 0) {
             $query = sprintf(
@@ -75,7 +76,7 @@ class rcguard extends rcube_plugin
 
             $query = $rcmail->db->query($query, $client_ip, $failed_attempts);
             $result = $rcmail->db->fetch_assoc($query);
-            $expire = $rcmail->config->get('expire_time', 30);
+            $expire = $rcmail->config->get('expire_time');
 
             if ($result && $result['last'] + $expire * 60 < $result['time']) {
                 $this->flush_rcguard();
@@ -95,7 +96,7 @@ class rcguard extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $client_ip = $this->get_client_ip();
-        $failed_attempts = $rcmail->config->get('failed_attempts', 5);
+        $failed_attempts = $rcmail->config->get('failed_attempts');
 
         $query = $rcmail->db->query(
             "SELECT ip FROM ".$this->table_name." WHERE ip = ? AND hits >= ?",
@@ -130,7 +131,7 @@ class rcguard extends rcube_plugin
 
     public function login_after($args)
     {
-        if (rcmail::get_instance()->config->get('rcguard_reset_after_success', true)) {
+        if (rcmail::get_instance()->config->get('rcguard_reset_after_success')) {
             $this->delete_rcguard( $this->get_client_ip() );
         }
 
@@ -254,7 +255,7 @@ class rcguard extends rcube_plugin
     {
         $rcmail = rcmail::get_instance();
 
-        if (! $rcmail->config->get('recaptcha_send_client_ip', false)) {
+        if (! $rcmail->config->get('recaptcha_send_client_ip')) {
             $client_ip = null;
         }
 
@@ -296,7 +297,7 @@ class rcguard extends rcube_plugin
 
     private function get_client_ip()
     {
-        $prefix = rcmail::get_instance()->config->get('rcguard_ipv6_prefix', 0);
+        $prefix = rcmail::get_instance()->config->get('rcguard_ipv6_prefix');
         $client_ip = rcube_utils::remote_addr();
 
         // process only if prefix is sane and it's an IPv6 address
