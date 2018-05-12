@@ -69,16 +69,16 @@ class rcguard extends rcube_plugin
 
         if ($failed_attempts > 0) {
             $query = sprintf(
-                "SELECT %s AS last, %s AS time FROM %s WHERE ip = ? AND hits >= ?",
+                "SELECT %s AS lasttime, %s AS nowtime FROM %s WHERE ip = ? AND hits >= ?",
                 $this->unixtimestamp('last'), $this->unixtimestamp('NOW()'),
                 $this->table_name
             );
 
-            $query = $rcmail->db->query($query, $client_ip, $failed_attempts);
+            $query  = $rcmail->db->query($query, $client_ip, $failed_attempts);
             $result = $rcmail->db->fetch_assoc($query);
-            $expire = $rcmail->config->get('expire_time');
+            $expire = intval($rcmail->config->get('expire_time')) * 60;
 
-            if ($result && $result['last'] + $expire * 60 < $result['time']) {
+            if ($result && $result['lasttime'] + $expire < $result['nowtime']) {
                 $this->flush_rcguard();
                 $result = 0;
             }
@@ -186,7 +186,7 @@ class rcguard extends rcube_plugin
         $rcmail->db->query(
             "DELETE FROM ".$this->table_name . " WHERE " .
             $this->unixtimestamp('last') . " + ? < " . $this->unixtimestamp('NOW()'),
-            $rcmail->config->get('expire_time') * 60
+            intval($rcmail->config->get('expire_time')) * 60
         );
     }
 
@@ -196,10 +196,10 @@ class rcguard extends rcube_plugin
 
         switch ($rcmail->db->db_provider) {
         case 'sqlite':
-            $field = preg_replace('/now\(\)/i', "'now'", $field);
-            $ts = "strftime('%s', $field)";
+            $ts = (stripos($field, 'NOW()') !== false) ? $this->unixnow() : $field;
             break;
         case 'pgsql':
+        case 'postgres':
             $ts = "EXTRACT (EPOCH FROM $field)";
             break;
         default:
