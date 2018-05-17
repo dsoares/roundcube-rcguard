@@ -34,6 +34,12 @@ $rcmail_config['recaptcha_send_client_ip'] = false;
 // Log events
 $rcmail_config['recaptcha_log'] = false;
 
+// Recaptcha widget theme: light | dark
+$rcmail_config['recaptcha_theme'] = 'light';
+
+// Recaptcha widget size: normal | compact
+$rcmail_config['recaptcha_size'] = 'normal';
+
 // Event is not logged when set to NULL
 // Parameter expansion:
 // %r - Remote IP

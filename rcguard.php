@@ -241,8 +241,13 @@ class rcguard extends rcube_plugin
         $script = html::tag('script', array('type' => "text/javascript", 'src' => $src));
         $this->include_script($src);
 
-        $html = '<tr><td colspan="2"><div class="g-recaptcha" data-sitekey="'.
-            $rcmail->config->get('recaptcha_publickey').'"></div></td></tr>';
+        $html = sprintf(
+            '<tr><td colspan="2"><div class="g-recaptcha" '.
+            'data-sitekey="%s" data-theme="%s" data-size="%s"></div></td></tr>',
+            $rcmail->config->get('recaptcha_publickey'),
+            $rcmail->config->get('recaptcha_theme'),
+            $rcmail->config->get('recaptcha_size')
+        );
 
         $loginform['content'] = str_ireplace(
             '</tbody>', $html .'</tbody>', $loginform['content']);
