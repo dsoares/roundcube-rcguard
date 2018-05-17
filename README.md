@@ -37,9 +37,12 @@ rcguard. The table should be created in the database used by Roundcube.
 
 ## Customizing reCAPTCHA
 
-Different themes and translations are available and i plan to add them to the
-plugin's configuration file. For now, please check the [documentation about reCAPTCHA](recaptcha-doc).
+You may customize the theme and size of the widget in the `config.inc.php` file. 
+For more information about the widget please check the [documentation about reCAPTCHA](recaptcha-doc).
 
+The plugin configuration file has several options you may configure, please take at look.
+
+Since May 2018, you can define a proxy (anonymous or authenticated) to request the recaptcha widget.
 
 ## Supported databases
 
