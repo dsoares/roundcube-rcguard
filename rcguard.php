@@ -263,9 +263,24 @@ class rcguard extends rcube_plugin
             $client_ip = null;
         }
 
+        $options = null;
+
+        if ($proxy = $rcmail->config->get('recaptcha_proxy')) {
+            $options = array(
+                'http' => array(
+                    'proxy' => $proxy,
+                    'request_fulluri' => true
+            ));
+
+            if ($auth = $rcmail->config->get('recaptcha_proxy_auth')) {
+                $auth = base64_encode($auth);
+                $options['http']['header'] = "Proxy-Authorization: Basic $auth";
+            }
+        }
+
         require_once($this->home . '/lib/recaptchalib.php');
 
-        $reCaptcha = new ReCaptcha($rcmail->config->get('recaptcha_privatekey'));
+        $reCaptcha = new ReCaptcha($rcmail->config->get('recaptcha_privatekey'), $options);
         $resp = $reCaptcha->verify($response, $client_ip);
 
         return ($resp != null && $resp->success);

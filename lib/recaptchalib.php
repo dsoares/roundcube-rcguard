@@ -39,13 +39,15 @@ class ReCaptcha
     private static $signupUrl = "https://www.google.com/recaptcha/admin";
     private static $siteVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
     private $_secret;
+    private $_options;
 
     /**
      * Constructor.
      *
      * @param string $secret shared secret between site and ReCAPTCHA server.
+     * @param array  $extra_options Extra options to pass to the stream context.
      */
-    function __construct($secret)
+    function __construct($secret, $extra_options = null)
     {
         if (empty($secret)) {
             die('To use reCAPTCHA you must get an API key from <a href="' .
@@ -53,6 +55,7 @@ class ReCaptcha
         }
 
         $this->_secret = $secret;
+        $this->_options = $extra_options;
     }
 
 
@@ -78,10 +81,39 @@ class ReCaptcha
             )
         );
 
+        if ($this->_options) {
+            $options = self::mergeOptions($options, $this->_options);
+        }
+
+        // REMEMBER: this is only for this kind of RequestMethod\Post
+        if (isset($options['http']['proxy'])
+            && strpos($options['http']['proxy'], 'tcp://') === false) {
+            $options['http']['proxy'] = 'tcp://' . $options['http']['proxy'];
+        }
+
         $context = stream_context_create($options);
         return file_get_contents(self::$siteVerifyUrl, false, $context);
     }
 
+    /**
+     * Recursively merge options without appending values.
+     *
+     * @param  array  $opts1 Options array (the default options)
+     * @param  array  $opts2 Options array (the given options)
+     * @return array         The merged options
+     */
+    private static function mergeOptions($opts1, $opts2)
+    {
+        if (is_array($opts2)) {
+            foreach ($opts2 as $key => $val) {
+                $opts1[$key] = (
+                    is_array($val) && isset($opts1[$key]) && is_array($opts1[$key])
+                    ? self::mergeOptions($opts1[$key], $val) : $val
+                );
+            }
+        }
+        return $opts1;
+    }
 
     /**
      * Calls the reCAPTCHA siteverify API to verify whether the user passes
@@ -96,7 +128,7 @@ class ReCaptcha
         if (empty($response)) { // Discard empty solution submissions
             return new ReCaptchaResponse(false, array('missing-input'));
         }
-        
+
         $params = array('version'  => self::$version,
                         'secret'   => $this->_secret,
                         'remoteip' => $remoteIp,

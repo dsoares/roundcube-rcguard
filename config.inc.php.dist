@@ -31,6 +31,14 @@ $rcmail_config['recaptcha_privatekey'] = '';
 // Send client IP to Google for reCAPTCHA verification
 $rcmail_config['recaptcha_send_client_ip'] = false;
 
+// If defined, use this proxy to request ReCaptcha
+// $rcmail_config['recaptcha_proxy'] = 'proxy.example.com:5100';
+$rcmail_config['recaptcha_proxy'] = false;
+
+// Proxy authentication credentials
+// $rcmail_config['recaptcha_proxy:auth'] = 'login:password';
+$rcmail_config['recaptcha_proxy_auth'] = false;
+
 // Log events
 $rcmail_config['recaptcha_log'] = false;
 
