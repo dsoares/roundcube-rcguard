@@ -62,3 +62,7 @@ $rcmail_config['rcguard_ipv6_prefix'] = 0;
 
 // Do not show recaptcha for this IPs
 $rcmail_config['rcguard_ignore_ips'] = array();
+
+// Do not show recaptcha of these networks
+$rcmail_config['recaptcha_whitelist'] = array();
+
