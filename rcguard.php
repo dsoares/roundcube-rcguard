@@ -50,17 +50,20 @@ class rcguard extends rcube_plugin
 
         $ignore_ips = $rcmail->config->get('rcguard_ignore_ips');
         $client_ip  = $this->get_client_ip();
+        $whitelisted = false;
 
-        foreach ( $rcmail->config->get('recaptcha_whitelist') as $network ){
-            if ($this->cidr_match($client_ip, $network))
-                $whitelisted = true;
-        }
         if (in_array($client_ip, $ignore_ips)) {
 	    $whitelisted = true;
-	}
+	} else {
+            foreach ( $rcmail->config->get('recaptcha_whitelist') as $network ){
+                if ($this->cidr_match($client_ip, $network)) {
+                    $whitelisted = true;
+                    break;
+                }
+            }
+        }
 
-
-        if (!whitelisted) {
+        if (!$whitelisted) {
             $this->table_name = $rcmail->db->table_name('rcguard', true);
             $this->add_hook('template_object_loginform', array($this, 'loginform'));
             $this->add_hook('authenticate', array($this, 'authenticate'));
