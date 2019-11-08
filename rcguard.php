@@ -41,21 +41,22 @@ class rcguard extends rcube_plugin
 {
     public $task = 'login';
     private $table_name;
+    private $rc;
 
     public function init()
     {
         $this->load_config('config.inc.php.dist');
         $this->load_config();
-        $rcmail = rcmail::get_instance();
+        $this->rc = rcmail::get_instance();
 
-        $ignore_ips = $rcmail->config->get('rcguard_ignore_ips');
+        $ignore_ips = $this->rc->config->get('rcguard_ignore_ips');
         $client_ip  = $this->get_client_ip();
         $whitelisted = false;
 
         if (in_array($client_ip, $ignore_ips)) {
-	    $whitelisted = true;
-	} else {
-            foreach ( $rcmail->config->get('recaptcha_whitelist') as $network ){
+            $whitelisted = true;
+        } else {
+            foreach ( $this->rc->config->get('recaptcha_whitelist') as $network ){
                 if ($this->cidr_match($client_ip, $network)) {
                     $whitelisted = true;
                     break;
@@ -64,7 +65,7 @@ class rcguard extends rcube_plugin
         }
 
         if (!$whitelisted) {
-            $this->table_name = $rcmail->db->table_name('rcguard', true);
+            $this->table_name = $this->rc->db->table_name('rcguard', true);
             $this->add_hook('template_object_loginform', array($this, 'loginform'));
             $this->add_hook('authenticate', array($this, 'authenticate'));
             $this->add_hook('login_after', array($this, 'login_after'));
@@ -143,7 +144,7 @@ class rcguard extends rcube_plugin
 
     public function login_after($args)
     {
-        if (rcmail::get_instance()->config->get('rcguard_reset_after_success')) {
+        if ($this->rc->config->get('rcguard_reset_after_success')) {
             $this->delete_rcguard( $this->get_client_ip() );
         }
 
@@ -152,11 +153,12 @@ class rcguard extends rcube_plugin
 
     public function login_failed($args)
     {
-        $rcmail = rcmail::get_instance();
         $client_ip = $this->get_client_ip();
 
-        $query  = $rcmail->db->query("SELECT hits FROM ".$this->table_name." WHERE ip = ?", $client_ip);
-        $result = $rcmail->db->fetch_assoc($query);
+        $query = $this->rc->db->query(
+            "SELECT hits FROM ".$this->table_name." WHERE ip = ?", $client_ip
+        );
+        $result = $this->rc->db->fetch_assoc($query);
 
         if ($result) {
             $this->update_rcguard($client_ip);
@@ -167,8 +169,7 @@ class rcguard extends rcube_plugin
 
     private function insert_rcguard($client_ip)
     {
-        $rcmail = rcmail::get_instance();
-        $rcmail->db->query(
+        $this->rc->db->query(
             "INSERT INTO ".$this->table_name." (ip, first, last, hits) ".
             "VALUES (?, ".$this->unixnow().", ".$this->unixnow().", 1)", $client_ip
         );
@@ -176,8 +177,7 @@ class rcguard extends rcube_plugin
 
     private function update_rcguard($client_ip)
     {
-        $rcmail = rcmail::get_instance();
-        $rcmail->db->query(
+        $this->rc->db->query(
             "UPDATE ".$this->table_name." SET last = ".$this->unixnow().
             ", hits = hits + 1 WHERE ip = ?", $client_ip
         );
@@ -185,8 +185,7 @@ class rcguard extends rcube_plugin
 
     private function delete_rcguard($client_ip)
     {
-        $rcmail = rcmail::get_instance();
-        $rcmail->db->query(
+        $this->rc->db->query(
             "DELETE FROM ".$this->table_name." WHERE ip = ?", $client_ip
         );
         $this->flush_rcguard();
@@ -194,19 +193,16 @@ class rcguard extends rcube_plugin
 
     private function flush_rcguard()
     {
-        $rcmail = rcmail::get_instance();
-        $rcmail->db->query(
+        $this->rc->db->query(
             "DELETE FROM ".$this->table_name . " WHERE " .
             $this->unixtimestamp('last') . " + ? < " . $this->unixtimestamp('NOW()'),
-            intval($rcmail->config->get('expire_time')) * 60
+            intval($this->rc->config->get('expire_time')) * 60
         );
     }
 
     private function unixtimestamp($field)
     {
-        $rcmail = rcmail::get_instance();
-
-        switch ($rcmail->db->db_provider) {
+        switch ($this->rc->db->db_provider) {
         case 'sqlite':
             $ts = (stripos($field, 'NOW()') !== false) ? $this->unixnow() : $field;
             break;
@@ -223,9 +219,7 @@ class rcguard extends rcube_plugin
 
     private function unixnow()
     {
-        $rcmail = rcmail::get_instance();
-
-        switch ($rcmail->db->db_provider) {
+        switch ($this->rc->db->db_provider) {
         case 'sqlite':
             $now = "strftime('%s', 'now')";
             break;
@@ -235,56 +229,112 @@ class rcguard extends rcube_plugin
         return $now;
     }
 
+    private function _deprecated_config_var_api()
+    {
+        $config = $this->rc->config;
+
+        if ($url = $config->get('recaptcha_api_secure', false) &&
+            ($config->get('recaptcha_https', true) || rcube_utils::https_check())) {
+            $this->rc->config->set('recaptcha_api_url', $url);
+        }
+        else if ($url = $config->get('recaptcha_api', false)) {
+            $this->rc->config->set('recaptcha_api_url', $url);
+        }
+    }
+
     private function show_recaptcha($loginform)
     {
-        $rcmail = rcmail::get_instance();
-
         $skin_path = $this->local_skin_path();
         if (!file_exists(INSTALL_PATH . '/plugins/rcguard/'.$skin_path)) {
             $skin_path = 'skins/larry';
         }
 
         $this->include_stylesheet($skin_path . '/rcguard.css');
+        $this->_deprecated_config_var_api();
 
-        $recaptcha_api = ($rcmail->config->get('recaptcha_https') || rcube_utils::https_check()) ?
-            $rcmail->config->get('recaptcha_api_secure') : $rcmail->config->get('recaptcha_api');
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
 
-        $src = sprintf("%s?hl=%s", $recaptcha_api, $rcmail->user->language);
-        $script = html::tag('script', array('type' => "text/javascript", 'src' => $src));
-        $this->include_script($src);
-
-        $html = sprintf(
-            '<tr><td colspan="2"><div class="g-recaptcha" '.
-            'data-sitekey="%s" data-theme="%s" data-size="%s"></div></td></tr>',
-            $rcmail->config->get('recaptcha_publickey'),
-            $rcmail->config->get('recaptcha_theme'),
-            $rcmail->config->get('recaptcha_size')
-        );
-
-        $loginform['content'] = str_ireplace(
-            '</tbody>', $html .'</tbody>', $loginform['content']);
+        if ($api_version === 'v3') {
+            $loginform['content'] .= $this->show_recaptcha_v3();
+        }
+        else if ($api_version === 'v2invisible') {
+            $loginform['content'] .= $this->show_recaptcha_v2invisible();
+        }
+        else {
+            $html = $this->show_recaptcha_v2();
+            $loginform['content'] = str_ireplace(
+                '</tbody>', $html .'</tbody>', $loginform['content']
+            );
+        }
 
         return $loginform;
     }
 
+    private function show_recaptcha_v3()
+    {
+        $api = $this->rc->config->get('recaptcha_api_url');
+        $src = sprintf("%s?render=%s", $api, $this->rc->config->get('recaptcha_publickey'));
+        $this->include_script($src);
+
+        $script = sprintf(
+            "grecaptcha.ready(function() {".
+            "    grecaptcha.execute('%s', {action: 'login'}).then(function(token) {".
+            "        $('#gtoken').val(token);".
+            "});});", $this->rc->config->get('recaptcha_publickey')
+        );
+        $this->rc->output->add_script($script, 'docready');
+
+        return '<input type="hidden" id="gtoken" name="g-recaptcha-response" value="">';
+    }
+
+    private function show_recaptcha_v2invisible()
+    {
+        $script = "grecaptcha.ready(function(){grecaptcha.execute();});";
+        $this->rc->output->add_script($script, 'docready');
+
+        return $this->show_recaptcha_v2('invisible');
+    }
+
+    private function show_recaptcha_v2($size=null)
+    {
+        $api = $this->rc->config->get('recaptcha_api_url');
+        $src = sprintf("%s?hl=%s", $api, $this->rc->user->language);
+        $this->include_script($src);
+
+        $html = sprintf(
+            '<div class="g-recaptcha" '.
+            'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
+            $this->rc->config->get('recaptcha_publickey'),
+            $this->rc->config->get('recaptcha_theme'),
+            $size?:$this->rc->config->get('recaptcha_size')
+        );
+
+        if ($size != 'invisible') {
+            $html = '<tr><td colspan="2">'.$html.'</td></tr>';
+        }
+
+        return $html;
+    }
+
     private function verify_recaptcha($response, $client_ip=null)
     {
-        $rcmail = rcmail::get_instance();
+        $config = $this->rc->config;
 
-        if (! $rcmail->config->get('recaptcha_send_client_ip')) {
+        if (! $config->get('recaptcha_send_client_ip')) {
             $client_ip = null;
         }
 
         $options = null;
 
-        if ($proxy = $rcmail->config->get('recaptcha_proxy')) {
+        if ($proxy = $config->get('recaptcha_proxy')) {
             $options = array(
                 'http' => array(
                     'proxy' => $proxy,
                     'request_fulluri' => true
-            ));
+                )
+            );
 
-            if ($auth = $rcmail->config->get('recaptcha_proxy_auth')) {
+            if ($auth = $config->get('recaptcha_proxy_auth')) {
                 $auth = base64_encode($auth);
                 $options['http']['header'] = "Proxy-Authorization: Basic $auth";
             }
@@ -292,7 +342,7 @@ class rcguard extends rcube_plugin
 
         require_once($this->home . '/lib/recaptchalib.php');
 
-        $reCaptcha = new ReCaptcha($rcmail->config->get('recaptcha_privatekey'), $options);
+        $reCaptcha = new ReCaptcha($config->get('recaptcha_privatekey'), $options);
         $resp = $reCaptcha->verify($response, $client_ip);
 
         return ($resp != null && $resp->success);
@@ -300,9 +350,9 @@ class rcguard extends rcube_plugin
 
     private function log_recaptcha($log_type, $username)
     {
-        $rcmail = rcmail::get_instance();
+        $config = $this->rc->config;
 
-        if (!$rcmail->config->get('recaptcha_log', false)) {
+        if (!$config->get('recaptcha_log', false)) {
             return;
         }
 
@@ -311,13 +361,13 @@ class rcguard extends rcube_plugin
 
         switch ($log_type) {
         case RCGUARD_RECAPTCHA_SUCCESS:
-            $log_entry = $rcmail->config->get('recaptcha_log_success');
+            $log_entry = $config->get('recaptcha_log_success');
             break;
         case RCGUARD_RECAPTCHA_FAILURE:
-            $log_entry = $rcmail->config->get('recaptcha_log_failure');
+            $log_entry = $config->get('recaptcha_log_failure');
             break;
         default:
-            $log_entry = $rcmail->config->get('recaptcha_log_unknown');
+            $log_entry = $config->get('recaptcha_log_unknown');
         }
 
         if (!empty($log_entry)) {
@@ -328,7 +378,7 @@ class rcguard extends rcube_plugin
 
     private function get_client_ip()
     {
-        $prefix = rcmail::get_instance()->config->get('rcguard_ipv6_prefix');
+        $prefix = $this->rc->config->get('rcguard_ipv6_prefix');
         $client_ip = rcube_utils::remote_addr();
 
         // process only if prefix is sane and it's an IPv6 address
@@ -352,12 +402,11 @@ class rcguard extends rcube_plugin
     }
 
     private function cidr_match($ip, $range){
-            list ($subnet, $bits) = explode('/', $range);
-            $ip = ip2long($ip);
-            $subnet = ip2long($subnet);
-            $mask = -1 << (32 - $bits);
-            $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
-            return ($ip & $mask) == $subnet;
+        list ($subnet, $bits) = explode('/', $range);
+        $ip = ip2long($ip);
+        $subnet = ip2long($subnet);
+        $mask = -1 << (32 - $bits);
+        $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+        return ($ip & $mask) == $subnet;
     }
-
 }

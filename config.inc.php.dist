@@ -1,5 +1,4 @@
 <?php
-
 /*
  * rcguard configuration file
  */
@@ -13,19 +12,21 @@ $rcmail_config['expire_time'] = 30;
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
 $rcmail_config['rcguard_reset_after_success'] = true;
 
-// reCAPTCHA API
-$rcmail_config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
-$rcmail_config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
+// reCAPTCHA API version and url
+$rcmail_config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible
+$rcmail_config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js';
 
-// Use HTTPS for reCAPTCHA
-$rcmail_config['recaptcha_https'] = true;
+// !!! DEPRECATED - not used anymore !!!
+//$rcmail_config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
+//$rcmail_config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
+//$rcmail_config['recaptcha_https']      = true;
 
 // Keys can be obtained from http://www.google.com/recaptcha/
 
-// Public key for reCAPTCHA
+// reCAPTCHA site key
 $rcmail_config['recaptcha_publickey'] = '';
 
-// Private key for reCAPTCHA
+// reCAPTCHA secret key
 $rcmail_config['recaptcha_privatekey'] = '';
 
 // Send client IP to Google for reCAPTCHA verification
@@ -42,10 +43,10 @@ $rcmail_config['recaptcha_proxy_auth'] = false;
 // Log events
 $rcmail_config['recaptcha_log'] = false;
 
-// Recaptcha widget theme: light | dark
+// Recaptcha widget theme: light | dark (only for v2*)
 $rcmail_config['recaptcha_theme'] = 'light';
 
-// Recaptcha widget size: normal | compact
+// Recaptcha widget size: normal | compact (only for v2*)
 $rcmail_config['recaptcha_size'] = 'normal';
 
 // Event is not logged when set to NULL
