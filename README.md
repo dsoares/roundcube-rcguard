@@ -11,22 +11,23 @@ IPs are also released after a certain expire amount of time.
 
 ## Installation
 
-<div style="background-color:#fee;padding:0 1em">
-**NOTE:** This plugin requires reCAPTCHA API keys to work properly.
-They can be obtained from https://www.google.com/recaptcha.
+<big>**IMPORTANT: This plugin requires reCAPTCHA API keys to work properly.**</big>
+<br>These can be obtained from https://www.google.com/recaptcha.
 
-</div>
 
 #### With Composer
 
 Add this plugin `dsoares/rcguard` to the `require` section of your Roundcube
-`composer.json` and enable rcguard in the main Roundcube configuration file.
+`composer.json`, run composer update and enable rcguard in the main Roundcube configuration file.
+<br>OR just run:
+
+    composer require dsoares/rcguard
 
 Copy `config.inc.php.dist` to `config.inc.php` and modify as necessary.
 
 #### Manually
 
-Place this directory under `plugins/` and enable rcguard in the main
+Place the contents of this directory under `plugins/rcguard` and enable rcguard in the main
 Roundcube configuration file.
 
 Copy `config.inc.php.dist` to `config.inc.php` and modify as necessary.
@@ -37,7 +38,7 @@ rcguard. The table should be created in the database used by Roundcube.
 
 ## Customizing reCAPTCHA
 
-You may customize the theme and size of the widget in the `config.inc.php` file. 
+You may customize the APi version (v3, v2 invisible or v2), the theme and size of the v2 widget in the `config.inc.php` file. 
 For more information about the widget please check the [documentation about reCAPTCHA](recaptcha-doc).
 
 The plugin configuration file has several options you may configure, please take at look.
@@ -53,9 +54,9 @@ Since May 2018, you can define a proxy (anonymous or authenticated) to request t
 
 ## Contact
 
-The original author of this plugin is [Denny Lin](dennylin). I forked it some
-years ago to use reCAPTCHA v2.0, add the larry skin and because the project
-issues were taking too long to be answered. Also, the original project is not
+The original author of this plugin was [Denny Lin](dennylin). I forked it some
+years ago to 1) use reCAPTCHA v2.0, 2) add the larry skin and 3) because the project
+issues were taking too long to be answered. Also, the original project was not
 updated since 2015 and many things have changed in the meantime in Roundcube's API.
 
 I will maintain this project because i need it working with the latest
@@ -72,7 +73,7 @@ Email: [Diana Soares][email]
 
 ## License
 
-This plugin is distributed under the BSD license. Please see rcguard.php
+This plugin is distributed under the GPLv3+ license. Please see rcguard.php
 for the complete license.
 
 This plugin also contains a PHP library for reCAPTCHA that is
