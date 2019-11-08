@@ -245,11 +245,8 @@ class rcguard extends rcube_plugin
     private function show_recaptcha($loginform)
     {
         $skin_path = $this->local_skin_path();
-        if (!file_exists(INSTALL_PATH . '/plugins/rcguard/'.$skin_path)) {
-            $skin_path = 'skins/larry';
-        }
-
         $this->include_stylesheet($skin_path . '/rcguard.css');
+
         $this->_deprecated_config_var_api();
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
