@@ -4,7 +4,7 @@
  *
  * Roundcube plugin to provide Google reCAPTCHA service to Roundcube.
  *
- * @version 1.2.0
+ * @version 1.1.4
  * @author Diana Soares
  *
  * Copyright (c) 2010-2012 Denny Lin. All rights reserved.
@@ -233,12 +233,15 @@ class rcguard extends rcube_plugin
     {
         $config = $this->rc->config;
 
-        if ($url = $config->get('recaptcha_api_secure', false) &&
-            ($config->get('recaptcha_https', true) || rcube_utils::https_check())) {
+        $url = $config->get('recaptcha_api_secure', false);
+        if ($url && ($config->get('recaptcha_https', true) || rcube_utils::https_check())) {
             $this->rc->config->set('recaptcha_api_url', $url);
         }
-        else if ($url = $config->get('recaptcha_api', false)) {
+        else {
+          $url = $config->get('recaptcha_api', false);
+          if ($url) {
             $this->rc->config->set('recaptcha_api_url', $url);
+          }
         }
     }
 
