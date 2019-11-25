@@ -1,6 +1,7 @@
 # Roundcube plugin rcguard
 
 ## Introduction
+
 This plugin logs failed login attempts and requires users to go through
 a reCAPTCHA verification process when the number of failed attempts go
 too high. It provides protection against automated attacks.
@@ -38,12 +39,18 @@ rcguard. The table should be created in the database used by Roundcube.
 
 ## Customizing reCAPTCHA
 
-You may customize the APi version (v3, v2 invisible or v2), the theme and size of the v2 widget in the `config.inc.php` file. 
+You may customize the following in the `config.inc.php` file:
+
+- the API version: `v3`, `v2invisible` or `v2`;
+- the v2 widget theme: `light` or `dark`;
+- the v2 widget size: `normal` or `compact`.
+
 For more information about the widget please check the [documentation about reCAPTCHA](recaptcha-doc).
 
-The plugin configuration file has several options you may configure, please take at look.
+The plugin configuration file has several other options you may configure, please take at look.
 
 Since May 2018, you can define a proxy (anonymous or authenticated) to request the recaptcha widget.
+
 
 ## Supported databases
 
@@ -73,9 +80,8 @@ Email: [Diana Soares][email]
 
 ## License
 
-This plugin is distributed under the GPLv3+ license. Please see rcguard.php
-for the complete license.
+This plugin is distributed under the GPLv3+ license.
 
 This plugin also contains a PHP library for reCAPTCHA that is
-distributed under its own license. See the file for the exact details.
+distributed under its own license. See the library file for the exact details.
 
