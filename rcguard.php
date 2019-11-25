@@ -262,8 +262,17 @@ class rcguard extends rcube_plugin
         }
         else {
             $html = $this->show_recaptcha_v2();
+
+            if (strpos($skin_path, '/elastic') !== false) {
+                $tag = '</table>';
+                $html = '<div class="form-group row">'.$html.'</div>';
+            } else {
+                $tag = '</tbody>';
+                $html = '<tr><td colspan="2">'.$html.'</td></tr>';
+            }
+
             $loginform['content'] = str_ireplace(
-                '</tbody>', $html .'</tbody>', $loginform['content']
+                $tag, $tag . $html, $loginform['content']
             );
         }
 
@@ -308,10 +317,6 @@ class rcguard extends rcube_plugin
             $this->rc->config->get('recaptcha_theme'),
             $size?:$this->rc->config->get('recaptcha_size')
         );
-
-        if ($size != 'invisible') {
-            $html = '<tr><td colspan="2">'.$html.'</td></tr>';
-        }
 
         return $html;
     }
