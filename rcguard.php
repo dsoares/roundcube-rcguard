@@ -1,14 +1,14 @@
 <?php
 /**
- * Roundcube rcguard plugin
+ * Roundcube rcguard plugin.
  *
  * Roundcube plugin to provide Google reCAPTCHA service to Roundcube.
  *
  * @version 1.2.2
  * @author Diana Soares
  *
+ * Copyright (c) Diana Soares. All rights reserved.
  * Copyright (c) 2010-2012 Denny Lin. All rights reserved.
- * Copyright (c) 2013-2019 Diana Soares. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,7 +33,6 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
 define('RCGUARD_RECAPTCHA_SUCCESS', 0);
 define('RCGUARD_RECAPTCHA_FAILURE', 1);
 
@@ -50,13 +49,13 @@ class rcguard extends rcube_plugin
         $this->rc = rcmail::get_instance();
 
         $ignore_ips = $this->rc->config->get('rcguard_ignore_ips');
-        $client_ip  = $this->get_client_ip();
+        $client_ip = $this->get_client_ip();
         $whitelisted = false;
 
         if (in_array($client_ip, $ignore_ips)) {
             $whitelisted = true;
         } else {
-            foreach ( $this->rc->config->get('recaptcha_whitelist') as $network ){
+            foreach ($this->rc->config->get('recaptcha_whitelist') as $network) {
                 if ($this->cidr_match($client_ip, $network)) {
                     $whitelisted = true;
                     break;
@@ -66,10 +65,10 @@ class rcguard extends rcube_plugin
 
         if (!$whitelisted) {
             $this->table_name = $this->rc->db->table_name('rcguard', true);
-            $this->add_hook('template_object_loginform', array($this, 'loginform'));
-            $this->add_hook('authenticate', array($this, 'authenticate'));
-            $this->add_hook('login_after', array($this, 'login_after'));
-            $this->add_hook('login_failed', array($this, 'login_failed'));
+            $this->add_hook('template_object_loginform', [$this, 'loginform']);
+            $this->add_hook('authenticate', [$this, 'authenticate']);
+            $this->add_hook('login_after', [$this, 'login_after']);
+            $this->add_hook('login_failed', [$this, 'login_failed']);
         }
     }
 
@@ -82,14 +81,15 @@ class rcguard extends rcube_plugin
 
         if ($failed_attempts > 0) {
             $query = sprintf(
-                "SELECT %s AS lasttime, %s AS nowtime FROM %s WHERE ip = ? AND hits >= ?",
-                $this->unixtimestamp('last'), $this->unixtimestamp('NOW()'),
+                'SELECT %s AS lasttime, %s AS nowtime FROM %s WHERE ip = ? AND hits >= ?',
+                $this->unixtimestamp('last'),
+                $this->unixtimestamp('NOW()'),
                 $this->table_name
             );
 
-            $query  = $rcmail->db->query($query, $client_ip, $failed_attempts);
+            $query = $rcmail->db->query($query, $client_ip, $failed_attempts);
             $result = $rcmail->db->fetch_assoc($query);
-            $expire = intval($rcmail->config->get('expire_time')) * 60;
+            $expire = (int) ($rcmail->config->get('expire_time')) * 60;
 
             if ($result && $result['lasttime'] + $expire < $result['nowtime']) {
                 $this->flush_rcguard();
@@ -112,8 +112,9 @@ class rcguard extends rcube_plugin
         $failed_attempts = $rcmail->config->get('failed_attempts');
 
         $query = $rcmail->db->query(
-            "SELECT ip FROM ".$this->table_name." WHERE ip = ? AND hits >= ?",
-            $client_ip, $failed_attempts
+            'SELECT ip FROM ' . $this->table_name . ' WHERE ip = ? AND hits >= ?',
+            $client_ip,
+            $failed_attempts
         );
         $result = $rcmail->db->fetch_assoc($query);
 
@@ -127,6 +128,7 @@ class rcguard extends rcube_plugin
         if ($response) {
             if ($this->verify_recaptcha($response, $client_ip)) {
                 $this->log_recaptcha(RCGUARD_RECAPTCHA_SUCCESS, $args['user']);
+
                 return $args;
             }
 
@@ -145,7 +147,7 @@ class rcguard extends rcube_plugin
     public function login_after($args)
     {
         if ($this->rc->config->get('rcguard_reset_after_success')) {
-            $this->delete_rcguard( $this->get_client_ip() );
+            $this->delete_rcguard($this->get_client_ip());
         }
 
         return $args;
@@ -156,7 +158,8 @@ class rcguard extends rcube_plugin
         $client_ip = $this->get_client_ip();
 
         $query = $this->rc->db->query(
-            "SELECT hits FROM ".$this->table_name." WHERE ip = ?", $client_ip
+            'SELECT hits FROM ' . $this->table_name . ' WHERE ip = ?',
+            $client_ip
         );
         $result = $this->rc->db->fetch_assoc($query);
 
@@ -170,23 +173,26 @@ class rcguard extends rcube_plugin
     private function insert_rcguard($client_ip)
     {
         $this->rc->db->query(
-            "INSERT INTO ".$this->table_name." (ip, first, last, hits) ".
-            "VALUES (?, ".$this->unixnow().", ".$this->unixnow().", 1)", $client_ip
+            'INSERT INTO ' . $this->table_name . ' (ip, first, last, hits) ' .
+            'VALUES (?, ' . $this->unixnow() . ', ' . $this->unixnow() . ', 1)',
+            $client_ip
         );
     }
 
     private function update_rcguard($client_ip)
     {
         $this->rc->db->query(
-            "UPDATE ".$this->table_name." SET last = ".$this->unixnow().
-            ", hits = hits + 1 WHERE ip = ?", $client_ip
+            'UPDATE ' . $this->table_name . ' SET last = ' . $this->unixnow() .
+            ', hits = hits + 1 WHERE ip = ?',
+            $client_ip
         );
     }
 
     private function delete_rcguard($client_ip)
     {
         $this->rc->db->query(
-            "DELETE FROM ".$this->table_name." WHERE ip = ?", $client_ip
+            'DELETE FROM ' . $this->table_name . ' WHERE ip = ?',
+            $client_ip
         );
         $this->flush_rcguard();
     }
@@ -194,9 +200,9 @@ class rcguard extends rcube_plugin
     private function flush_rcguard()
     {
         $this->rc->db->query(
-            "DELETE FROM ".$this->table_name . " WHERE " .
-            $this->unixtimestamp('last') . " + ? < " . $this->unixtimestamp('NOW()'),
-            intval($this->rc->config->get('expire_time')) * 60
+            'DELETE FROM ' . $this->table_name . ' WHERE ' .
+            $this->unixtimestamp('last') . ' + ? < ' . $this->unixtimestamp('NOW()'),
+            (int) ($this->rc->config->get('expire_time')) * 60
         );
     }
 
@@ -208,10 +214,10 @@ class rcguard extends rcube_plugin
             break;
         case 'pgsql':
         case 'postgres':
-            $ts = "EXTRACT (EPOCH FROM $field)";
+            $ts = "EXTRACT (EPOCH FROM {$field})";
             break;
         default:
-            $ts = "UNIX_TIMESTAMP($field)";
+            $ts = "UNIX_TIMESTAMP({$field})";
         }
 
         return $ts;
@@ -224,8 +230,9 @@ class rcguard extends rcube_plugin
             $now = "strftime('%s', 'now')";
             break;
         default:
-            $now = "NOW()";
+            $now = 'NOW()';
         }
+
         return $now;
     }
 
@@ -238,10 +245,10 @@ class rcguard extends rcube_plugin
             $this->rc->config->set('recaptcha_api_url', $url);
         }
         else {
-          $url = $config->get('recaptcha_api', false);
-          if ($url) {
-            $this->rc->config->set('recaptcha_api_url', $url);
-          }
+            $url = $config->get('recaptcha_api', false);
+            if ($url) {
+                $this->rc->config->set('recaptcha_api_url', $url);
+            }
         }
     }
 
@@ -265,10 +272,10 @@ class rcguard extends rcube_plugin
 
             if (strpos($skin_path, '/elastic') !== false) {
                 $tag = '</table>';
-                $html = '<div class="form-group row">'.$html.'</div>';
+                $html = '<div class="form-group row">' . $html . '</div>';
             } else {
                 $tag = '</tbody>';
-                $html = '<tr><td colspan="2">'.$html.'</td></tr>';
+                $html = '<tr><td colspan="2">' . $html . '</td></tr>';
             }
 
             $loginform['content'] = str_ireplace(
@@ -282,14 +289,15 @@ class rcguard extends rcube_plugin
     private function show_recaptcha_v3()
     {
         $api = $this->rc->config->get('recaptcha_api_url');
-        $src = sprintf("%s?render=%s", $api, $this->rc->config->get('recaptcha_publickey'));
+        $src = sprintf('%s?render=%s', $api, $this->rc->config->get('recaptcha_publickey'));
         $this->include_script($src);
 
         $script = sprintf(
-            "grecaptcha.ready(function() {".
-            "    grecaptcha.execute('%s', {action: 'login'}).then(function(token) {".
-            "        $('#gtoken').val(token);".
-            "});});", $this->rc->config->get('recaptcha_publickey')
+            'grecaptcha.ready(function() {' .
+            "    grecaptcha.execute('%s', {action: 'login'}).then(function(token) {" .
+            "        $('#gtoken').val(token);" .
+            '});});',
+            $this->rc->config->get('recaptcha_publickey')
         );
         $this->rc->output->add_script($script, 'docready');
 
@@ -298,59 +306,59 @@ class rcguard extends rcube_plugin
 
     private function show_recaptcha_v2invisible()
     {
-        $script = "grecaptcha.ready(function(){grecaptcha.execute();});";
+        $script = 'grecaptcha.ready(function(){grecaptcha.execute();});';
         $this->rc->output->add_script($script, 'docready');
 
         return $this->show_recaptcha_v2('invisible');
     }
 
-    private function show_recaptcha_v2($size=null)
+    private function show_recaptcha_v2($size = null)
     {
         $api = $this->rc->config->get('recaptcha_api_url');
-        $src = sprintf("%s?hl=%s", $api, $this->rc->user->language);
+        $src = sprintf('%s?hl=%s', $api, $this->rc->user->language);
         $this->include_script($src);
 
         $html = sprintf(
-            '<div class="g-recaptcha" '.
+            '<div class="g-recaptcha" ' .
             'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
             $this->rc->config->get('recaptcha_publickey'),
             $this->rc->config->get('recaptcha_theme'),
-            $size?:$this->rc->config->get('recaptcha_size')
+            $size ?: $this->rc->config->get('recaptcha_size')
         );
 
         return $html;
     }
 
-    private function verify_recaptcha($response, $client_ip=null)
+    private function verify_recaptcha($response, $client_ip = null)
     {
         $config = $this->rc->config;
 
-        if (! $config->get('recaptcha_send_client_ip')) {
+        if (!$config->get('recaptcha_send_client_ip')) {
             $client_ip = null;
         }
 
         $options = null;
 
         if ($proxy = $config->get('recaptcha_proxy')) {
-            $options = array(
-                'http' => array(
+            $options = [
+                'http' => [
                     'proxy' => $proxy,
-                    'request_fulluri' => true
-                )
-            );
+                    'request_fulluri' => true,
+                ],
+            ];
 
             if ($auth = $config->get('recaptcha_proxy_auth')) {
                 $auth = base64_encode($auth);
-                $options['http']['header'] = "Proxy-Authorization: Basic $auth";
+                $options['http']['header'] = "Proxy-Authorization: Basic {$auth}";
             }
         }
 
-        require_once($this->home . '/lib/recaptchalib.php');
+        require_once $this->home . '/lib/recaptchalib.php';
 
         $reCaptcha = new ReCaptcha($config->get('recaptcha_privatekey'), $options);
         $resp = $reCaptcha->verify($response, $client_ip);
 
-        return ($resp != null && $resp->success);
+        return $resp != null && $resp->success;
     }
 
     private function log_recaptcha($log_type, $username)
@@ -376,7 +384,7 @@ class rcguard extends rcube_plugin
         }
 
         if (!empty($log_entry)) {
-            $log_entry = str_replace(array('%r', '%u'), array($client_ip, $username), $log_entry);
+            $log_entry = str_replace(['%r', '%u'], [$client_ip, $username], $log_entry);
             rcube::write_log('rcguard', $log_entry);
         }
     }
@@ -388,30 +396,42 @@ class rcguard extends rcube_plugin
 
         // process only if prefix is sane and it's an IPv6 address
         if (is_int($prefix) && $prefix > 16 && $prefix < 128 &&
-            filter_var($client_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
-
+            filter_var($client_ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6) !== false) {
             // construct subnet mask
             $mask_string = str_repeat('1', $prefix) . str_repeat('0', 128 - $prefix);
             $mask_split = str_split($mask_string, 16);
             foreach ($mask_split as $item) {
                 $item = base_convert($item, 2, 16);
             }
-            $mask_hex = implode(":", $mask_split);
+            $mask_hex = implode(':', $mask_split);
 
             // return network part
             return inet_ntop(inet_pton($client_ip) & inet_pton($mask_hex));
         }
 
-         // fall back: return unaltered client IP
-         return $client_ip;
+        // fall back: return unaltered client IP
+        return $client_ip;
     }
 
-    private function cidr_match($ip, $range){
-        list ($subnet, $bits) = explode('/', $range);
+    /**
+     * Check an IP against a value in CIDR notation.
+     *
+     * @param  string $ip   IP to check
+     * @param  string $cidr IP or network in CIDR notation
+     * @return bool
+     */
+    private function cidr_match($ip, $cidr)
+    {
+        if (strpos($cidr, '/') === false) {
+            $cidr .= '/32';
+        }
+
+        [$subnet, $bits] = explode('/', $cidr);
         $ip = ip2long($ip);
         $subnet = ip2long($subnet);
         $mask = -1 << (32 - $bits);
-        $subnet &= $mask; # nb: in case the supplied subnet wasn't correctly aligned
+        $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
+
         return ($ip & $mask) == $subnet;
     }
 }
