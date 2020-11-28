@@ -49,14 +49,14 @@ class rcguard extends rcube_plugin
 
         $this->rc = rcmail::get_instance();
 
-        $ignore_ips = $this->rc->config->get('rcguard_ignore_ips');
+        $ignore_ips = $this->rc->config->get('rcguard_ignore_ips', []);
         $client_ip = $this->get_client_ip();
         $whitelisted = false;
 
         if (in_array($client_ip, $ignore_ips)) {
             $whitelisted = true;
         } else {
-            foreach ($this->rc->config->get('recaptcha_whitelist') as $network) {
+            foreach ($this->rc->config->get('recaptcha_whitelist', []) as $network) {
                 if ($this->cidr_match($client_ip, $network)) {
                     $whitelisted = true;
                     break;
@@ -78,7 +78,7 @@ class rcguard extends rcube_plugin
         $rcmail = rcmail::get_instance();
 
         $client_ip = $this->get_client_ip();
-        $failed_attempts = $rcmail->config->get('failed_attempts');
+        $failed_attempts = $rcmail->config->get('failed_attempts', 3);
 
         if ($failed_attempts > 0) {
             $query = sprintf(
@@ -90,7 +90,7 @@ class rcguard extends rcube_plugin
 
             $query = $rcmail->db->query($query, $client_ip, $failed_attempts);
             $result = $rcmail->db->fetch_assoc($query);
-            $expire = (int) ($rcmail->config->get('expire_time')) * 60;
+            $expire = (int) ($rcmail->config->get('expire_time', 30)) * 60;
 
             if ($result && $result['lasttime'] + $expire < $result['nowtime']) {
                 $this->flush_rcguard();
@@ -146,7 +146,7 @@ class rcguard extends rcube_plugin
 
     public function login_after($args)
     {
-        if ($this->rc->config->get('rcguard_reset_after_success')) {
+        if ($this->rc->config->get('rcguard_reset_after_success', true)) {
             $this->delete_rcguard($this->get_client_ip());
         }
 
@@ -331,13 +331,13 @@ class rcguard extends rcube_plugin
     {
         $config = $this->rc->config;
 
-        if (!$config->get('recaptcha_send_client_ip')) {
+        if (!$config->get('recaptcha_send_client_ip', false)) {
             $client_ip = null;
         }
 
         $options = null;
 
-        if ($proxy = $config->get('recaptcha_proxy')) {
+        if ($proxy = $config->get('recaptcha_proxy', false)) {
             $options = [
                 'http' => [
                     'proxy' => $proxy,
@@ -345,7 +345,7 @@ class rcguard extends rcube_plugin
                 ],
             ];
 
-            if ($auth = $config->get('recaptcha_proxy_auth')) {
+            if ($auth = $config->get('recaptcha_proxy_auth', false)) {
                 $auth = base64_encode($auth);
                 $options['http']['header'] = "Proxy-Authorization: Basic {$auth}";
             }
@@ -389,7 +389,7 @@ class rcguard extends rcube_plugin
 
     private function get_client_ip()
     {
-        $prefix = $this->rc->config->get('rcguard_ipv6_prefix');
+        $prefix = $this->rc->config->get('rcguard_ipv6_prefix', 0);
         $client_ip = rcube_utils::remote_addr();
 
         // process only if prefix is sane and it's an IPv6 address
