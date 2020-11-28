@@ -46,6 +46,7 @@ class rcguard extends rcube_plugin
     {
         $this->load_config('config.inc.php.dist');
         $this->load_config();
+
         $this->rc = rcmail::get_instance();
 
         $ignore_ips = $this->rc->config->get('rcguard_ignore_ips');
@@ -113,8 +114,7 @@ class rcguard extends rcube_plugin
 
         $query = $rcmail->db->query(
             'SELECT ip FROM ' . $this->table_name . ' WHERE ip = ? AND hits >= ?',
-            $client_ip,
-            $failed_attempts
+            [$client_ip, $failed_attempts]
         );
         $result = $rcmail->db->fetch_assoc($query);
 
@@ -136,7 +136,7 @@ class rcguard extends rcube_plugin
         }
 
         $this->log_recaptcha(RCGUARD_RECAPTCHA_FAILURE, $args['user']);
-        $this->add_texts('localization/');
+        $this->add_texts('localization');
         $rcmail->output->show_message($msg, 'error');
         $rcmail->output->set_env('task', 'login');
         $rcmail->output->send('login');
@@ -278,9 +278,7 @@ class rcguard extends rcube_plugin
                 $html = '<tr><td colspan="2">' . $html . '</td></tr>';
             }
 
-            $loginform['content'] = str_ireplace(
-                $tag, $tag . $html, $loginform['content']
-            );
+            $loginform['content'] = str_ireplace($tag, $tag . $html, $loginform['content']);
         }
 
         return $loginform;
@@ -293,8 +291,8 @@ class rcguard extends rcube_plugin
         $this->include_script($src);
 
         $script = sprintf(
-            'grecaptcha.ready(function() {' .
-            "    grecaptcha.execute('%s', {action: 'login'}).then(function(token) {" .
+            'grecaptcha.ready(function(){' .
+            "    grecaptcha.execute('%s',{action:'login'}).then(function(token) {" .
             "        $('#gtoken').val(token);" .
             '});});',
             $this->rc->config->get('recaptcha_publickey')
