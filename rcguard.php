@@ -4,7 +4,7 @@
  *
  * Roundcube plugin to provide Google reCAPTCHA service to Roundcube.
  *
- * @version 1.2.2
+ * @version 1.3.0
  * @author Diana Soares
  *
  * Copyright (c) Diana Soares. All rights reserved.
