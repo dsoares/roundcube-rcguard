@@ -254,9 +254,6 @@ class rcguard extends rcube_plugin
 
     private function show_recaptcha($loginform)
     {
-        $skin_path = $this->local_skin_path();
-        $this->include_stylesheet($skin_path . '/rcguard.css');
-
         $this->_deprecated_config_var_api();
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
@@ -269,6 +266,9 @@ class rcguard extends rcube_plugin
         }
         else {
             $html = $this->show_recaptcha_v2();
+
+            $skin_path = $this->local_skin_path();
+            $this->include_stylesheet($skin_path . '/rcguard.css');
 
             if (strpos($skin_path, '/elastic') !== false) {
                 $tag = '</table>';
