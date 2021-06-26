@@ -243,8 +243,7 @@ class rcguard extends rcube_plugin
         $url = $config->get('recaptcha_api_secure', false);
         if ($url && ($config->get('recaptcha_https', true) || rcube_utils::https_check())) {
             $this->rc->config->set('recaptcha_api_url', $url);
-        }
-        else {
+        } else {
             $url = $config->get('recaptcha_api', false);
             if ($url) {
                 $this->rc->config->set('recaptcha_api_url', $url);
@@ -260,11 +259,9 @@ class rcguard extends rcube_plugin
 
         if ($api_version === 'v3') {
             $loginform['content'] .= $this->show_recaptcha_v3();
-        }
-        else if ($api_version === 'v2invisible') {
+        } elseif ($api_version === 'v2invisible') {
             $loginform['content'] .= $this->show_recaptcha_v2invisible();
-        }
-        else {
+        } else {
             $html = $this->show_recaptcha_v2();
 
             $skin_path = $this->local_skin_path();
@@ -424,7 +421,7 @@ class rcguard extends rcube_plugin
             $cidr .= '/32';
         }
 
-        [$subnet, $bits] = explode('/', $cidr);
+        list($subnet, $bits) = explode('/', $cidr);
         $ip = ip2long($ip);
         $subnet = ip2long($subnet);
         $mask = -1 << (32 - $bits);
