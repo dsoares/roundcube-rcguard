@@ -53,7 +53,7 @@ or [documentation about hCaptcha][hcaptcha-doc].
 
 The plugin configuration file has several other options you may configure, please take at look.
 
-Since May 2018, you can define a proxy (anonymous or authenticated) to request the recaptcha widget.
+Since May 2018, you can define a proxy (anonymous or authenticated) to request the reCAPTCHA|hCaptcha widget.
 
 
 ## Supported databases
@@ -87,6 +87,6 @@ Email: [Diana Soares][email]
 
 This plugin is distributed under the GPL-3.0+ license.
 
-This plugin also contains a PHP library for reCAPTCHA that is
-distributed under its own license. See the library file for the exact details.
+This plugin also contains PHP libraries for reCAPTCHA and hCaptcha that is
+distributed under its own license. See the library files for the exact details.
 
