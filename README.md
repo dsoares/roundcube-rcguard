@@ -3,7 +3,7 @@
 ## Introduction
 
 This plugin logs failed login attempts and requires users to go through
-a reCAPTCHA verification process when the number of failed attempts go
+a reCAPTCHA|hCaptcha verification process when the number of failed attempts go
 too high. It provides protection against automated attacks.
 
 Failed attempts are logged by IP and stored in a database table.
@@ -12,8 +12,8 @@ IPs are also released after a certain expire amount of time.
 
 ## Installation
 
-<big>**IMPORTANT: This plugin requires reCAPTCHA API keys to work properly.**</big>
-<br>These can be obtained from https://www.google.com/recaptcha.
+<big>**IMPORTANT: This plugin requires reCAPTCHA|hCaptcha API keys to work properly.**</big>
+<br>These can be obtained from https://www.google.com/recaptcha or https://dashboard.hcaptcha.com/.
 
 
 #### With Composer
@@ -44,11 +44,12 @@ the table `rcguard` accordingly.
 
 You may customize the following in the `config.inc.php` file:
 
-- the API version: `v3`, `v2invisible` or `v2`;
+- the API version: `v3`, `v2invisible`, `v2` or `v2hcaptcha`;
 - the v2 widget theme: `light` or `dark`;
 - the v2 widget size: `normal` or `compact`.
 
-For more information about the widget please check the [documentation about reCAPTCHA][recaptcha-doc].
+For more information about the widget please check the [documentation about reCAPTCHA][recaptcha-doc]
+or [documentation about hCaptcha][hcaptcha-doc].
 
 The plugin configuration file has several other options you may configure, please take at look.
 
@@ -79,6 +80,7 @@ Email: [Diana Soares][email]
 [email]: mailto:diana.soares@gmail.com
 [dennylin]: https://github.com/dennylin93
 [recaptcha-doc]: https://developers.google.com/recaptcha/intro
+[hcaptcha-doc]: https://docs.hcaptcha.com/
 
 
 ## License
