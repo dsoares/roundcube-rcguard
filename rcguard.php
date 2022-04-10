@@ -310,7 +310,7 @@ class rcguard extends rcube_plugin
     private function show_recaptcha_v2($size = null)
     {
         $api = $this->rc->config->get('recaptcha_api_url');
-        $src = sprintf('%s?hl=%s', $api, $this->rc->user->language);
+        $src = sprintf('%s?hl=%s', $api, substr($this->rc->user->language, 0, strpos($this->rc->user->language, '_'))); // hCaptcha is not supporting 'territory'
         $this->include_script($src);
 
         $html = sprintf(
