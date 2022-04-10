@@ -386,11 +386,8 @@ class rcguard extends rcube_plugin
         }
 
         if (!empty($log_entry)) {
-            $log_entry = str_replace(['%r', '%u'], [$client_ip, $username], $log_entry);
-
             $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
-            $log_entry .= ' via ' . $api_version;
-
+            $log_entry = str_replace(['%r', '%u', '%v'], [$client_ip, $username, $api_version], $log_entry);
             rcube::write_log('rcguard', $log_entry);
         }
     }

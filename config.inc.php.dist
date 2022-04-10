@@ -54,8 +54,9 @@ $config['recaptcha_size'] = 'normal';
 // Parameter expansion:
 // %r - Remote IP
 // %u - Username
-$config['recaptcha_log_success'] = 'Verification succeeded for %u. [%r]';
-$config['recaptcha_log_failure'] = 'Error: Verification failed for %u. [%r]';
+// %v - API version
+$config['recaptcha_log_success'] = 'Verification succeeded for %u. [%r] via %v';
+$config['recaptcha_log_failure'] = 'Error: Verification failed for %u. [%r] via %v';
 $config['recaptcha_log_unknown'] = 'Error: Unknown log type.';
 
 // Block IPv6 clients based on prefix length
