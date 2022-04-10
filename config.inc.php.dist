@@ -12,21 +12,22 @@ $config['expire_time'] = 30;
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
 $config['rcguard_reset_after_success'] = true;
 
-// reCAPTCHA API version and url
-$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible
-$config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js';
+// reCAPTCHA|hCaptcha API version and url
+$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha
+$config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reCAPTCHA
+//$config['recaptcha_api_url'] = 'https://js.hcaptcha.com/1/api.js'; // hCaptcha
 
 // !!! DEPRECATED - not used anymore !!!
 //$config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
 //$config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
 //$config['recaptcha_https']      = true;
 
-// Keys can be obtained from http://www.google.com/recaptcha/
+// Keys can be obtained from http://www.google.com/recaptcha/ or https://dashboard.hcaptcha.com/
 
-// reCAPTCHA site key
+// reCAPTCHA|hCaptcha site key
 $config['recaptcha_publickey'] = '';
 
-// reCAPTCHA secret key
+// reCAPTCHA|hCaptcha secret key
 $config['recaptcha_privatekey'] = '';
 
 // Send client IP to Google for reCAPTCHA verification
