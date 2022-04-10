@@ -313,9 +313,11 @@ class rcguard extends rcube_plugin
         $src = sprintf('%s?hl=%s', $api, substr($this->rc->user->language, 0, strpos($this->rc->user->language, '_'))); // hCaptcha is not supporting 'territory'
         $this->include_script($src);
 
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
         $html = sprintf(
-            '<div class="g-recaptcha" ' .
+            '<div class="%s" ' .
             'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
+            ($api_version == 'v2hcaptcha') ? 'h-captcha' : 'g-recaptcha',
             $this->rc->config->get('recaptcha_publickey'),
             $this->rc->config->get('recaptcha_theme'),
             $size ?: $this->rc->config->get('recaptcha_size')
@@ -348,7 +350,12 @@ class rcguard extends rcube_plugin
             }
         }
 
-        require_once $this->home . '/lib/recaptchalib.php';
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+        if ($api_version == 'v2hcaptcha') {
+            require_once $this->home . '/lib/hcaptchalib.php';
+        } else {
+            require_once $this->home . '/lib/recaptchalib.php';
+        };
 
         $reCaptcha = new ReCaptcha($config->get('recaptcha_privatekey'), $options);
         $resp = $reCaptcha->verify($response, $client_ip);
