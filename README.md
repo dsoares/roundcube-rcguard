@@ -43,11 +43,11 @@ rcguard. The table should be created in the database used by Roundcube.
 the table `rcguard` accordingly.
 
 
-## Customizing reCAPTCHA
+## Customizing CAPTCHA
 
 You may customize the following in the `config.inc.php` file:
 
-- the API version: `v3`, `v2invisible`, `v2` or `v2hcaptcha` or `v2friendlycaptcha`;
+- the API version: `v3`, `v2invisible`, `v2`, `v2hcaptcha` or `v2friendlycaptcha`;
 - the v2 widget theme: `light` or `dark`;
 - the v2 widget size: `normal` or `compact`.
 
@@ -58,7 +58,7 @@ For more information about the widget please check:
 
 The plugin configuration file has several other options you may configure, please take at look.
 
-Since May 2018, you can define a proxy (anonymous or authenticated) to request the reCAPTCHA widget.
+Since May 2018, you can define a proxy (anonymous or authenticated) to request the CAPTCHA widget.
 
 Since April 2022, support for hCaptcha and FriendlyCaptcha was added
 
@@ -95,6 +95,6 @@ Email: [Diana Soares][email]
 
 This plugin is distributed under the GPL-3.0+ license.
 
-This plugin also contains PHP libraries for reCAPTCHA and hCaptcha that is
+This plugin also contains PHP libraries for reCAPTCHA, hCaptcha and FriendlyCaptcha that is
 distributed under its own license. See the library files for the exact details.
 
