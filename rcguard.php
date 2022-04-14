@@ -371,7 +371,12 @@ class rcguard extends rcube_plugin
         };
 
         $reCaptcha = new ReCaptcha($config->get('recaptcha_privatekey'), $options);
-        $resp = $reCaptcha->verify($response, $client_ip);
+
+        if ($api_version == 'v2hcaptcha') {
+            $resp = $reCaptcha->verify($response, $client_ip, $config->get('recaptcha_publickey'));
+        } else {
+            $resp = $reCaptcha->verify($response, $client_ip);
+        };
 
         return $resp != null && $resp->success;
     }
