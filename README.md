@@ -16,7 +16,7 @@ IPs are also released after a certain expire amount of time.
 <br>These can be obtained from:
 - Google reCAPTCHA: https://www.google.com/recaptcha
 - hCaptcha: https://dashboard.hcaptcha.com/
-- FriendlyCaptcha: https://friendlycaptcha.com/.
+- FriendlyCaptcha: https://friendlycaptcha.com/
 
 
 #### With Composer
@@ -54,7 +54,7 @@ You may customize the following in the `config.inc.php` file:
 For more information about the widget please check:
 - [documentation about reCAPTCHA][recaptcha-doc]
 - [documentation about hCaptcha][hcaptcha-doc].
-- [documentation about FriendlyCaptcha][friendlycaptcha-doc].
+- [documentation about FriendlyCaptcha][friendlycaptcha-doc]
 
 The plugin configuration file has several other options you may configure, please take at look.
 
