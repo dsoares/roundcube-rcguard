@@ -123,7 +123,14 @@ class rcguard extends rcube_plugin
         }
 
         $msg = 'rcguard.recaptchaempty';
-        $response = rcube_utils::get_input_value('g-recaptcha-response', rcube_utils::INPUT_POST);
+
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+        $input_value = 'g-recaptcha-response';
+        if ($api_version == 'v2hcaptcha') {
+            $input_value = 'h-captcha-response';
+        };
+
+        $response = rcube_utils::get_input_value($input_value, rcube_utils::INPUT_POST);
 
         if ($response) {
             if ($this->verify_recaptcha($response, $client_ip)) {
