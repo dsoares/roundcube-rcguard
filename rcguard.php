@@ -320,14 +320,23 @@ class rcguard extends rcube_plugin
         $this->include_script($src);
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
-        $html = sprintf(
+        if ($api_version == 'v2friendlycaptcha') {
+          $html = sprintf(
+            '<div class="frc-captcha" ' .
+            'data-sitekey="%s" data-lang="%s" data-start="none"></div>',
+            $this->rc->config->get('recaptcha_publickey'),
+            $lang
+          );
+        } else {
+          $html = sprintf(
             '<div class="%s" ' .
             'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
             ($api_version == 'v2hcaptcha') ? 'h-captcha' : 'g-recaptcha',
             $this->rc->config->get('recaptcha_publickey'),
             $this->rc->config->get('recaptcha_theme'),
             $size ?: $this->rc->config->get('recaptcha_size')
-        );
+          );
+	};
 
         return $html;
     }
@@ -359,6 +368,8 @@ class rcguard extends rcube_plugin
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
         if ($api_version == 'v2hcaptcha') {
             require_once $this->home . '/lib/hcaptchalib.php';
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            require_once $this->home . '/lib/friendlycaptchalib.php';
         } else {
             require_once $this->home . '/lib/recaptchalib.php';
         };
