@@ -12,10 +12,11 @@ $config['expire_time'] = 30;
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
 $config['rcguard_reset_after_success'] = true;
 
-// reCAPTCHA|hCaptcha API version and url
-$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha
+// reCAPTCHA|hCaptcha|FriendlyCaptcha API version and url
+$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha | v2friendlycaptcha
 $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reCAPTCHA
 //$config['recaptcha_api_url'] = 'https://js.hcaptcha.com/1/api.js'; // hCaptcha
+//$config['recaptcha_api_url'] = 'https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.module.min.js'; // FriendlyCaptcha
 
 // !!! DEPRECATED - not used anymore !!!
 //$config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
@@ -24,10 +25,10 @@ $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reC
 
 // Keys can be obtained from http://www.google.com/recaptcha/ or https://dashboard.hcaptcha.com/
 
-// reCAPTCHA|hCaptcha site key
+// reCAPTCHA|hCaptcha/FriendlyCaptcha site key
 $config['recaptcha_publickey'] = '';
 
-// reCAPTCHA|hCaptcha secret key
+// reCAPTCHA|hCaptcha/FriendlyCaptcha secret key
 $config['recaptcha_privatekey'] = '';
 
 // Send client IP to Google for reCAPTCHA verification
