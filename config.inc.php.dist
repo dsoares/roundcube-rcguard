@@ -23,7 +23,10 @@ $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reC
 //$config['recaptcha_api_secure'] = 'https://www.google.com/recaptcha/api.js';
 //$config['recaptcha_https']      = true;
 
-// Keys can be obtained from http://www.google.com/recaptcha/ or https://dashboard.hcaptcha.com/
+// Keys can be obtained from
+// - http://www.google.com/recaptcha/
+// - https://dashboard.hcaptcha.com/
+// - https://friendlycaptcha.com/
 
 // reCAPTCHA|hCaptcha/FriendlyCaptcha site key
 $config['recaptcha_publickey'] = '';
@@ -31,7 +34,7 @@ $config['recaptcha_publickey'] = '';
 // reCAPTCHA|hCaptcha/FriendlyCaptcha secret key
 $config['recaptcha_privatekey'] = '';
 
-// Send client IP to Google for reCAPTCHA verification
+// Send client IP to Google/hCaptcha for reCAPTCHA verification
 $config['recaptcha_send_client_ip'] = false;
 
 // If defined, use this proxy to request ReCaptcha
