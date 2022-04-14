@@ -310,7 +310,13 @@ class rcguard extends rcube_plugin
     private function show_recaptcha_v2($size = null)
     {
         $api = $this->rc->config->get('recaptcha_api_url');
-        $src = sprintf('%s?hl=%s', $api, substr($this->rc->user->language, 0, strpos($this->rc->user->language, '_'))); // hCaptcha is not supporting 'territory'
+        $lang = $this->rc->user->language;
+        $lang_territory_separator_pos = strpos($lang, '_');
+        if ($lang_territory_separator_pos > 0) {
+            // hCaptcha is not supporting 'territory' appendix
+            $lang = substr($lang, 0, $lang_territory_separator_pos);
+        };
+        $src = sprintf('%s?hl=%s', $api, $lang);
         $this->include_script($src);
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
