@@ -128,6 +128,8 @@ class rcguard extends rcube_plugin
         $input_value = 'g-recaptcha-response';
         if ($api_version == 'v2hcaptcha') {
             $input_value = 'h-captcha-response';
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            $input_value = 'frc-captcha-solution';
         };
 
         $response = rcube_utils::get_input_value($input_value, rcube_utils::INPUT_POST);
