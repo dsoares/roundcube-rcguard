@@ -119,20 +119,22 @@ class ReCaptcha
     }
 
     /**
-     * Calls the hCaptcha siteverify API to verify whether the user passes
+     * Calls the FriendlyCaptcha siteverify API to verify whether the user passes
      * CAPTCHA test. (hCaptcha version php_1.1.1)
      *
-     * @param string $response The value of 'g-recaptcha-response' in the submitted form.
-     * @param string $remoteIp The end user's IP address.
+     * @param string $response The value of 'frc-captcha-solution' in the submitted form.
+     * @param string $remoteIp The end user's IP address. [not supported on FriendlyCaptcha]
+     * @param string $sitekey assigned site key
      * @return ReCaptchaResponse Response from the service.
      */
-    public function verify($response, $remoteIp = null)
+    public function verify($response, $remoteIp = null, $sitekey = null)
     {
         if (empty($response)) { // Discard empty solution submissions
             return new ReCaptchaResponse(false, array('missing-input'));
         }
 
         $params = array('secret'   => $this->_secret,
+                        'sitekey'  => $sitekey,
                         'solution' => $response
                         );
 
