@@ -16,7 +16,7 @@ $config['rcguard_reset_after_success'] = true;
 $config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha | v2friendlycaptcha
 $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reCAPTCHA
 //$config['recaptcha_api_url'] = 'https://js.hcaptcha.com/1/api.js'; // hCaptcha
-//$config['recaptcha_api_url'] = 'https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.module.min.js'; // FriendlyCaptcha
+//$config['recaptcha_api_url'] = 'https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.min.js'; // FriendlyCaptcha
 
 // !!! DEPRECATED - not used anymore !!!
 //$config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
