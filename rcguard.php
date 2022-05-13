@@ -395,8 +395,8 @@ class rcguard extends rcube_plugin
             // construct subnet mask
             $mask_string = str_repeat('1', $prefix) . str_repeat('0', 128 - $prefix);
             $mask_split = str_split($mask_string, 16);
-            foreach ($mask_split as $item) {
-                $item = base_convert($item, 2, 16);
+            for ($i = 0; $i < count($mask_split); $i++) {
+                $mask_split[$a] = base_convert($mask_split[$a], 2, 16);
             }
             $mask_hex = implode(':', $mask_split);
 
