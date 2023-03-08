@@ -55,10 +55,12 @@ class rcguard extends rcube_plugin
 
         if (in_array($client_ip, $ignore_ips)) {
             $whitelisted = true;
+            rcube::write_log('rcguard', 'Captcha verification skipped because of client IP ' . $client_ip . ' found in ignore list');
         } else {
             foreach ($this->rc->config->get('recaptcha_whitelist', []) as $network) {
                 if ($this->cidr_match($client_ip, $network)) {
                     $whitelisted = true;
+                    rcube::write_log('rcguard', 'Captcha verification skipped because of client IP ' . $client_ip . ' matches whitelist entry ' . $network);
                     break;
                 }
             }
@@ -395,8 +397,8 @@ class rcguard extends rcube_plugin
             // construct subnet mask
             $mask_string = str_repeat('1', $prefix) . str_repeat('0', 128 - $prefix);
             $mask_split = str_split($mask_string, 16);
-            foreach ($mask_split as $item) {
-                $item = base_convert($item, 2, 16);
+            for ($i = 0; $i < count($mask_split); $i++) {
+                $mask_split[$i] = base_convert($mask_split[$i], 2, 16);
             }
             $mask_hex = implode(':', $mask_split);
 
@@ -417,16 +419,52 @@ class rcguard extends rcube_plugin
      */
     private function cidr_match($ip, $cidr)
     {
+        $ip_is_ipv6 = filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+        $cidr_is_ipv6 = filter_var(explode('/', $cidr)[0], \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+
+        $cidr_match_ipv6 = false;
+        if ($ip_is_ipv6 == false && $cidr_is_ipv6 == false) {
+                // IPv4 vs. IPv4
+        } elseif ($ip_is_ipv6 == false || $cidr_is_ipv6 == false) {
+                // IPv4 vs. IPv6
+                return false; // not supported so far (even in case of IPv4 is included in IPv6)
+        } else {
+                // IPv6 vs. IPv6
+                $cidr_match_ipv6 = true;
+        };
+
         if (strpos($cidr, '/') === false) {
-            $cidr .= '/32';
+            if ($cidr_match_ipv6 == true) {
+                    $cidr .= '/128';
+            } else {
+                    $cidr .= '/32';
+            };
         }
 
         list($subnet, $bits) = explode('/', $cidr);
-        $ip = ip2long($ip);
-        $subnet = ip2long($subnet);
-        $mask = -1 << (32 - $bits);
+
+        if ($cidr_match_ipv6 == true) {
+            $ip = inet_pton($ip);
+            $subnet = inet_pton($subnet);
+
+            // construct subnet mask
+            $mask_string = str_repeat('1', $bits) . str_repeat('0', 128 - $bits);
+            $mask_split = str_split($mask_string, 16);
+            for ($i = 0; $i < count($mask_split); $i++) {
+                $mask_split[$i] = base_convert($mask_split[$i], 2, 16);
+            }
+            $mask_hex = implode(':', $mask_split);
+            $mask = inet_pton($mask_hex);
+        } else {
+            $ip = ip2long($ip);
+            $subnet = ip2long($subnet);
+            $mask = -1 << (32 - $bits);
+        };
+
         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
         return ($ip & $mask) == $subnet;
     }
 }
+
+// vim: tabstop=4 smartindent shiftwidth=4 expandtab
