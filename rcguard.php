@@ -433,15 +433,13 @@ class rcguard extends rcube_plugin
                 $cidr_match_ipv6 = true;
         };
 
-        if ($cidr_match_ipv6 == true) {
-            if (strpos($cidr, '/') === false) {
+        if (strpos($cidr, '/') === false) {
+            if ($cidr_match_ipv6 == true) {
                     $cidr .= '/64'; // default prefix length for global IPv6 addresses
-            }
-        } else {
-            if (strpos($cidr, '/') === false) {
+            } else {
                     $cidr .= '/32';
-            }
-        };
+            };
+        }
 
         list($subnet, $bits) = explode('/', $cidr);
 
