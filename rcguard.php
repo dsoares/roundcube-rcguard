@@ -435,7 +435,7 @@ class rcguard extends rcube_plugin
 
         if (strpos($cidr, '/') === false) {
             if ($cidr_match_ipv6 == true) {
-                    $cidr .= '/64'; // default prefix length for global IPv6 addresses
+                    $cidr .= '/128';
             } else {
                     $cidr .= '/32';
             };
