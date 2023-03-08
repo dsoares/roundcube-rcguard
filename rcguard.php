@@ -419,16 +419,54 @@ class rcguard extends rcube_plugin
      */
     private function cidr_match($ip, $cidr)
     {
-        if (strpos($cidr, '/') === false) {
-            $cidr .= '/32';
-        }
+        $ip_is_ipv6 = filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+        $cidr_is_ipv6 = filter_var(explode('/', $cidr)[0], \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6);
+
+        $cidr_match_ipv6 = false;
+        if ($ip_is_ipv6 == false && $cidr_is_ipv6 == false) {
+                // IPv4 vs. IPv4
+        } elseif ($ip_is_ipv6 == false || $cidr_is_ipv6 == false) {
+                // IPv4 vs. IPv6
+                return false; // not supported so far (even in case of IPv4 is included in IPv6)
+        } else {
+                // IPv6 vs. IPv6
+                $cidr_match_ipv6 = true;
+        };
+
+        if ($cidr_match_ipv6 == true) {
+            if (strpos($cidr, '/') === false) {
+                    $cidr .= '/64'; // default prefix length for global IPv6 addresses
+            }
+        } else {
+            if (strpos($cidr, '/') === false) {
+                    $cidr .= '/32';
+            }
+        };
 
         list($subnet, $bits) = explode('/', $cidr);
-        $ip = ip2long($ip);
-        $subnet = ip2long($subnet);
-        $mask = -1 << (32 - $bits);
+
+        if ($cidr_match_ipv6 == true) {
+            $ip = inet_pton($ip);
+            $subnet = inet_pton($subnet);
+
+            // construct subnet mask
+            $mask_string = str_repeat('1', $bits) . str_repeat('0', 128 - $bits);
+            $mask_split = str_split($mask_string, 16);
+            for ($i = 0; $i < count($mask_split); $i++) {
+                $mask_split[$i] = base_convert($mask_split[$i], 2, 16);
+            }
+            $mask_hex = implode(':', $mask_split);
+            $mask = inet_pton($mask_hex);
+        } else {
+            $ip = ip2long($ip);
+            $subnet = ip2long($subnet);
+            $mask = -1 << (32 - $bits);
+        };
+
         $subnet &= $mask; // nb: in case the supplied subnet wasn't correctly aligned
 
         return ($ip & $mask) == $subnet;
     }
 }
+
+// vim: tabstop=4 smartindent shiftwidth=4 expandtab
