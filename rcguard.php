@@ -55,10 +55,12 @@ class rcguard extends rcube_plugin
 
         if (in_array($client_ip, $ignore_ips)) {
             $whitelisted = true;
+            rcube::write_log('rcguard', 'Captcha verification skipped because of client IP ' . $client_ip . ' found in ignore list');
         } else {
             foreach ($this->rc->config->get('recaptcha_whitelist', []) as $network) {
                 if ($this->cidr_match($client_ip, $network)) {
                     $whitelisted = true;
+                    rcube::write_log('rcguard', 'Captcha verification skipped because of client IP ' . $client_ip . ' matches whitelist entry ' . $network);
                     break;
                 }
             }
