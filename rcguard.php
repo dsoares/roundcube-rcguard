@@ -130,6 +130,8 @@ class rcguard extends rcube_plugin
             $input_value = 'h-captcha-response';
         } elseif ($api_version == 'v2friendlycaptcha') {
             $input_value = 'frc-captcha-solution';
+        } elseif ($api_version == 'v2cfturnstile') {
+            $input_value = 'cf-turnstile-response';
         };
 
         $response = rcube_utils::get_input_value($input_value, rcube_utils::INPUT_POST);
@@ -325,14 +327,28 @@ class rcguard extends rcube_plugin
             // hCaptcha is not supporting 'territory' appendix
             $lang = substr($lang, 0, $lang_territory_separator_pos);
         };
-        $src = sprintf('%s?hl=%s', $api, $lang);
-        $this->include_script($src);
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+
+        if ($api_version == 'v2cfturnstile') {
+            // Cloudflare Turnstile is not supporting 'hl'
+            $src = sprintf('%s', $api);
+        } else {
+            $src = sprintf('%s?hl=%s', $api, $lang);
+        };
+        $this->include_script($src);
+
         if ($api_version == 'v2friendlycaptcha') {
           $html = sprintf(
             '<div class="frc-captcha" ' .
             'data-sitekey="%s" data-lang="%s" data-start="none"></div>',
+            $this->rc->config->get('recaptcha_publickey'),
+            $lang
+          );
+        } elseif ($api_version == 'v2cfturnstile') {
+          $html = sprintf(
+            '<div class="cf-turnstile" ' .
+            'data-sitekey="%s" data-language="%s" data-start="none"></div>',
             $this->rc->config->get('recaptcha_publickey'),
             $lang
           );
@@ -379,6 +395,8 @@ class rcguard extends rcube_plugin
             require_once $this->home . '/lib/hcaptchalib.php';
         } elseif ($api_version == 'v2friendlycaptcha') {
             require_once $this->home . '/lib/friendlycaptchalib.php';
+        } elseif ($api_version == 'v2cfturnstile') {
+            require_once $this->home . '/lib/cfturnstile.php';
         } else {
             require_once $this->home . '/lib/recaptchalib.php';
         };

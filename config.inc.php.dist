@@ -12,11 +12,12 @@ $config['expire_time'] = 30;
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
 $config['rcguard_reset_after_success'] = true;
 
-// reCAPTCHA|hCaptcha|FriendlyCaptcha API version and url
-$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha | v2friendlycaptcha
-$config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reCAPTCHA
+// Google reCAPTCHA|hCaptcha|FriendlyCaptcha|Cloudflare Turnstyle API version and url
+$config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha | v2friendlycaptcha | v2cfturnstyle
+$config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // Google reCAPTCHA
 //$config['recaptcha_api_url'] = 'https://js.hcaptcha.com/1/api.js'; // hCaptcha
 //$config['recaptcha_api_url'] = 'https://cdn.jsdelivr.net/npm/friendly-challenge@0.9.1/widget.min.js'; // FriendlyCaptcha
+//$config['recaptcha_api_url'] = 'https://challenges.cloudflare.com/turnstile/v0/api.js'; // Cloudflare Turnstyle
 
 // !!! DEPRECATED - not used anymore !!!
 //$config['recaptcha_api']        = 'http://www.google.com/recaptcha/api.js';
@@ -27,6 +28,7 @@ $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // reC
 // - http://www.google.com/recaptcha/
 // - https://dashboard.hcaptcha.com/
 // - https://friendlycaptcha.com/
+// - https://www.cloudflare.com/products/turnstile/
 
 // reCAPTCHA|hCaptcha/FriendlyCaptcha site key
 $config['recaptcha_publickey'] = '';
