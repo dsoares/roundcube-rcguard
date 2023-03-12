@@ -3,7 +3,7 @@
  * rcguard configuration file.
  */
 
-// Number of failed logins before reCAPTCHA is shown
+// Number of failed logins before CAPTCHA is shown
 $config['failed_attempts'] = 3;
 
 // Release IP after how many minutes (after last failed attempt)
@@ -12,7 +12,7 @@ $config['expire_time'] = 30;
 // Reset failure count after successfull login (see bratkartoffel/rcguard@670395e)
 $config['rcguard_reset_after_success'] = true;
 
-// Google reCAPTCHA|hCaptcha|FriendlyCaptcha|Cloudflare Turnstyle API version and url
+// Google reCAPTCHA | hCaptcha | FriendlyCaptcha | Cloudflare Turnstyle API version and url
 $config['recaptcha_api_version'] = 'v2'; // v3 | v2 | v2invisible | v2hcaptcha | v2friendlycaptcha | v2cfturnstyle
 $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // Google reCAPTCHA
 //$config['recaptcha_api_url'] = 'https://js.hcaptcha.com/1/api.js'; // hCaptcha
@@ -30,16 +30,16 @@ $config['recaptcha_api_url'] = 'https://www.google.com/recaptcha/api.js'; // Goo
 // - https://friendlycaptcha.com/
 // - https://www.cloudflare.com/products/turnstile/
 
-// reCAPTCHA|hCaptcha/FriendlyCaptcha site key
+// CAPTCHA site key
 $config['recaptcha_publickey'] = '';
 
-// reCAPTCHA|hCaptcha/FriendlyCaptcha secret key
+// CAPTCHA secret key
 $config['recaptcha_privatekey'] = '';
 
-// Send client IP to Google/hCaptcha for reCAPTCHA verification
+// Send client IP for CAPTCHA verification, supported on: Google | hCaptcha
 $config['recaptcha_send_client_ip'] = false;
 
-// If defined, use this proxy to request ReCaptcha
+// If defined, use this proxy to request CAPTCHA
 // $config['recaptcha_proxy'] = 'proxy.example.com:5100';
 $config['recaptcha_proxy'] = false;
 
