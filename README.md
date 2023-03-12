@@ -3,7 +3,7 @@
 ## Introduction
 
 This plugin logs failed login attempts and requires users to go through
-a reCAPTCHA|hCaptcha|FriendlyCaptcha verification process when the number of failed attempts go
+a CAPTCHA verification process when the number of failed attempts go
 too high. It provides protection against automated attacks.
 
 Failed attempts are logged by IP and stored in a database table.
@@ -12,11 +12,12 @@ IPs are also released after a certain expire amount of time.
 
 ## Installation
 
-<big>**IMPORTANT: This plugin requires reCAPTCHA|hCaptcha|FriendlyCaptcha API keys to work properly.**</big>
+<big>**IMPORTANT: This plugin requires CAPTCHA API keys to work properly.**</big>
 <br>These can be obtained from:
 - Google reCAPTCHA: https://www.google.com/recaptcha
 - hCaptcha: https://dashboard.hcaptcha.com/
 - FriendlyCaptcha: https://friendlycaptcha.com/
+- Cloudflare Turnstile: https://www.cloudflare.com/products/turnstile/
 
 
 #### With Composer
@@ -47,20 +48,23 @@ the table `rcguard` accordingly.
 
 You may customize the following in the `config.inc.php` file:
 
-- the API version: `v3`, `v2invisible`, `v2`, `v2hcaptcha` or `v2friendlycaptcha`;
-- the v2 widget theme: `light` or `dark`;
-- the v2 widget size: `normal` or `compact`.
+- the API version: `v3`, `v2invisible`, `v2`, `v2hcaptcha` or `v2friendlycaptcha` or `v2cfturnstile`;
+- the v2 widget theme: `light` or `dark` (where supported);
+- the v2 widget size: `normal` or `compact` (where supported).
 
 For more information about the widget please check:
 - [documentation about reCAPTCHA][recaptcha-doc]
 - [documentation about hCaptcha][hcaptcha-doc].
 - [documentation about FriendlyCaptcha][friendlycaptcha-doc]
+- [documentation about Cloudflare Turnstile][cfturnstile-doc]
 
 The plugin configuration file has several other options you may configure, please take at look.
 
 Since May 2018, you can define a proxy (anonymous or authenticated) to request the CAPTCHA widget.
 
 Since April 2022, support for hCaptcha and FriendlyCaptcha was added
+
+Since March 2023, support for Cloudflare Turnstile was added
 
 
 ## Supported databases
@@ -89,6 +93,7 @@ Email: [Diana Soares][email]
 [recaptcha-doc]: https://developers.google.com/recaptcha/intro
 [hcaptcha-doc]: https://docs.hcaptcha.com/
 [friendlycaptcha-doc]: https://docs.friendlycaptcha.com/
+[cfturnstile-doc]: https://developers.cloudflare.com/turnstile/
 
 
 ## License
