@@ -125,13 +125,15 @@ class rcguard extends rcube_plugin
         $msg = 'rcguard.recaptchaempty';
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
-        $input_value = 'g-recaptcha-response';
+
         if ($api_version == 'v2hcaptcha') {
             $input_value = 'h-captcha-response';
         } elseif ($api_version == 'v2friendlycaptcha') {
             $input_value = 'frc-captcha-solution';
         } elseif ($api_version == 'v2cfturnstile') {
             $input_value = 'cf-turnstile-response';
+        } else {
+            $input_value = 'g-recaptcha-response';
         };
 
         $response = rcube_utils::get_input_value($input_value, rcube_utils::INPUT_POST);
@@ -321,47 +323,53 @@ class rcguard extends rcube_plugin
     private function show_recaptcha_v2($size = null)
     {
         $api = $this->rc->config->get('recaptcha_api_url');
+
         $lang = $this->rc->user->language;
         $lang_territory_separator_pos = strpos($lang, '_');
         if ($lang_territory_separator_pos > 0) {
-            // hCaptcha is not supporting 'territory' appendix
+            // strip 'territory' appendix
             $lang = substr($lang, 0, $lang_territory_separator_pos);
         };
 
         $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
 
-        if ($api_version == 'v2cfturnstile') {
-            // Cloudflare Turnstile is not supporting 'hl'
+        $div_tokens = array();
+
+        array_push($div_tokens, sprintf('data-sitekey="%s"', $this->rc->config->get('recaptcha_publickey')));
+
+        if ($api_version == 'v2hcaptcha') {
+            // hCaptcha supports: theme size / hl
+            array_push($div_tokens, 'class="h-captcha"');
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
+            $src = sprintf('%s?hl=%s', $api, $lang);
+
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            // FriendlyCaptcha supports: lang start
+            array_push($div_tokens, 'class="frc-captcha"');
+            array_push($div_tokens, sprintf('data-lang="%s"', $lang));
+            array_push($div_tokens, 'data-start="none"');
             $src = sprintf('%s', $api);
+
+        } elseif ($api_version == 'v2cfturnstile') {
+            // Cloudflare Turnstile supports: lang theme size
+            array_push($div_tokens, 'class="cf-turnstile"');
+            array_push($div_tokens, sprintf('data-language="%s"', $lang));
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
+            $src = sprintf('%s', $api);
+
         } else {
+            // Google reCAPTCHA v2 supports: theme size / hl
+            array_push($div_tokens, 'class="g-recaptcha"');
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
             $src = sprintf('%s?hl=%s', $api, $lang);
         };
+
         $this->include_script($src);
 
-        if ($api_version == 'v2friendlycaptcha') {
-          $html = sprintf(
-            '<div class="frc-captcha" ' .
-            'data-sitekey="%s" data-lang="%s" data-start="none"></div>',
-            $this->rc->config->get('recaptcha_publickey'),
-            $lang
-          );
-        } elseif ($api_version == 'v2cfturnstile') {
-          $html = sprintf(
-            '<div class="cf-turnstile" ' .
-            'data-sitekey="%s" data-language="%s" data-start="none"></div>',
-            $this->rc->config->get('recaptcha_publickey'),
-            $lang
-          );
-        } else {
-          $html = sprintf(
-            '<div class="%s" ' .
-            'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
-            ($api_version == 'v2hcaptcha') ? 'h-captcha' : 'g-recaptcha',
-            $this->rc->config->get('recaptcha_publickey'),
-            $this->rc->config->get('recaptcha_theme'),
-            $size ?: $this->rc->config->get('recaptcha_size')
-          );
-	};
+        $html = '<div ' . join(" ", $div_tokens) . '</div>';
 
         return $html;
     }
