@@ -66,7 +66,7 @@ class ReCaptcha
      * Submit the POST request with the specified parameters.
      *
      * @param array $params Request parameters
-     * @return string Body of the hCaptcha response
+     * @return string Body of the FriendlyCaptcha response
      */
     private function _submit($params)
     {
@@ -120,7 +120,7 @@ class ReCaptcha
 
     /**
      * Calls the FriendlyCaptcha siteverify API to verify whether the user passes
-     * CAPTCHA test. (hCaptcha version php_1.1.1)
+     * CAPTCHA test. (FriendlyCaptcha version php_1.1.1)
      *
      * @param string $response The value of 'frc-captcha-solution' in the submitted form.
      * @param string $remoteIp The end user's IP address. [not supported on FriendlyCaptcha]

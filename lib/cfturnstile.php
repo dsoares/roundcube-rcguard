@@ -66,7 +66,7 @@ class ReCaptcha
      * Submit the POST request with the specified parameters.
      *
      * @param array $params Request parameters
-     * @return string Body of the hCaptcha response
+     * @return string Body of the Cloudflare Turnstile response
      */
     private function _submit($params)
     {
