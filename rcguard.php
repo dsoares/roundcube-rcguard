@@ -123,7 +123,20 @@ class rcguard extends rcube_plugin
         }
 
         $msg = 'rcguard.recaptchaempty';
-        $response = rcube_utils::get_input_value('g-recaptcha-response', rcube_utils::INPUT_POST);
+
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+
+        if ($api_version == 'v2hcaptcha') {
+            $input_value = 'h-captcha-response';
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            $input_value = 'frc-captcha-solution';
+        } elseif ($api_version == 'v2cfturnstile') {
+            $input_value = 'cf-turnstile-response';
+        } else {
+            $input_value = 'g-recaptcha-response';
+        };
+
+        $response = rcube_utils::get_input_value($input_value, rcube_utils::INPUT_POST);
 
         if ($response) {
             if ($this->verify_recaptcha($response, $client_ip)) {
@@ -310,16 +323,53 @@ class rcguard extends rcube_plugin
     private function show_recaptcha_v2($size = null)
     {
         $api = $this->rc->config->get('recaptcha_api_url');
-        $src = sprintf('%s?hl=%s', $api, $this->rc->user->language);
+
+        $lang = $this->rc->user->language;
+        $lang_territory_separator_pos = strpos($lang, '_');
+        if ($lang_territory_separator_pos > 0) {
+            // strip 'territory' appendix
+            $lang = substr($lang, 0, $lang_territory_separator_pos);
+        };
+
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+
+        $div_tokens = array();
+
+        array_push($div_tokens, sprintf('data-sitekey="%s"', $this->rc->config->get('recaptcha_publickey')));
+
+        if ($api_version == 'v2hcaptcha') {
+            // hCaptcha supports: theme size / hl
+            array_push($div_tokens, 'class="h-captcha"');
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
+            $src = sprintf('%s?hl=%s', $api, $lang);
+
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            // FriendlyCaptcha supports: lang start
+            array_push($div_tokens, 'class="frc-captcha"');
+            array_push($div_tokens, sprintf('data-lang="%s"', $lang));
+            array_push($div_tokens, 'data-start="none"');
+            $src = sprintf('%s', $api);
+
+        } elseif ($api_version == 'v2cfturnstile') {
+            // Cloudflare Turnstile supports: lang theme size
+            array_push($div_tokens, 'class="cf-turnstile"');
+            array_push($div_tokens, sprintf('data-language="%s"', $lang));
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
+            $src = sprintf('%s', $api);
+
+        } else {
+            // Google reCAPTCHA v2 supports: theme size / hl
+            array_push($div_tokens, 'class="g-recaptcha"');
+            array_push($div_tokens, sprintf('data-theme="%s"', $this->rc->config->get('recaptcha_theme')));
+            array_push($div_tokens, sprintf('data-size="%s"', $size ?: $this->rc->config->get('recaptcha_size')));
+            $src = sprintf('%s?hl=%s', $api, $lang);
+        };
+
         $this->include_script($src);
 
-        $html = sprintf(
-            '<div class="g-recaptcha" ' .
-            'data-sitekey="%s" data-theme="%s" data-size="%s"></div>',
-            $this->rc->config->get('recaptcha_publickey'),
-            $this->rc->config->get('recaptcha_theme'),
-            $size ?: $this->rc->config->get('recaptcha_size')
-        );
+        $html = '<div ' . join(" ", $div_tokens) . '</div>';
 
         return $html;
     }
@@ -348,10 +398,24 @@ class rcguard extends rcube_plugin
             }
         }
 
-        require_once $this->home . '/lib/recaptchalib.php';
+        $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+        if ($api_version == 'v2hcaptcha') {
+            require_once $this->home . '/lib/hcaptchalib.php';
+        } elseif ($api_version == 'v2friendlycaptcha') {
+            require_once $this->home . '/lib/friendlycaptchalib.php';
+        } elseif ($api_version == 'v2cfturnstile') {
+            require_once $this->home . '/lib/cfturnstile.php';
+        } else {
+            require_once $this->home . '/lib/recaptchalib.php';
+        };
 
         $reCaptcha = new ReCaptcha($config->get('recaptcha_privatekey'), $options);
-        $resp = $reCaptcha->verify($response, $client_ip);
+
+        if ($api_version == 'v2hcaptcha' || $api_version == 'v2friendlycaptcha') {
+            $resp = $reCaptcha->verify($response, $client_ip, $config->get('recaptcha_publickey'));
+        } else {
+            $resp = $reCaptcha->verify($response, $client_ip);
+        };
 
         return $resp != null && $resp->success;
     }
@@ -379,7 +443,8 @@ class rcguard extends rcube_plugin
         }
 
         if (!empty($log_entry)) {
-            $log_entry = str_replace(['%r', '%u'], [$client_ip, $username], $log_entry);
+            $api_version = $this->rc->config->get('recaptcha_api_version', 'v2');
+            $log_entry = str_replace(['%r', '%u', '%v'], [$client_ip, $username, $api_version], $log_entry);
             rcube::write_log('rcguard', $log_entry);
         }
     }
